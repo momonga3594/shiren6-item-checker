@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>風来のシレン6 識別ツール</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --bg2: #16213e;
+    --bg3: #0f3460;
+    --accent: #e94560;
+    --accent2: #f5a623;
+    --text: #eaeaea;
+    --text2: #a0a0b0;
+    --green: #4caf50;
+    --gray: #555;
+    --card: #1e2a45;
+    --border: #2a3a5e;
+    --blue: #4fc3f7;
+    --teal: #26c6da;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif; font-size: 14px; }
+
+  header {
+    background: var(--bg3);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 { font-size: 16px; color: var(--accent2); letter-spacing: 1px; }
+  header .subtitle { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .btn-reset {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .btn-reset:hover { opacity: 0.85; }
+
+  .btn-qr {
+    background: none;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .btn-qr:hover { background: rgba(245,166,35,0.12); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    min-width: 220px;
+  }
+  .modal h2 { font-size: 14px; color: var(--accent2); margin-bottom: 16px; }
+  .modal p { font-size: 11px; color: var(--text2); margin-top: 12px; word-break: break-all; }
+  #qrcode { display: flex; justify-content: center; }
+  #qrcode canvas, #qrcode img { border-radius: 6px; }
+  .modal-close {
+    margin-top: 16px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  .modal-close:hover { border-color: var(--text); color: var(--text); }
+
+  .filter-bar {
+    background: var(--bg2);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .filter-bar label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .filter-bar input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 4px;
+    width: 100px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .filter-bar input:focus { outline: none; border-color: var(--accent2); }
+  .filter-count { font-size: 12px; color: var(--accent2); }
+  .filter-clear { background: none; border: 1px solid var(--border); color: var(--text2); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-family: inherit; }
+  .filter-clear:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .chip-bar {
+    background: var(--bg2);
+    padding: 6px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip-label { font-size: 11px; color: var(--text2); min-width: 36px; white-space: nowrap; }
+  .price-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 11px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text2);
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .price-chip:hover { border-color: var(--accent2); color: var(--text); }
+  .price-chip.active.buy  { border-color: var(--accent2); background: rgba(245,166,35,0.18); color: var(--accent2); font-weight: bold; }
+  .price-chip.active.sell { border-color: var(--blue); background: rgba(79,195,247,0.14); color: var(--blue); font-weight: bold; }
+  .price-chip.active.count { border-color: var(--teal); background: rgba(38,198,218,0.18); color: var(--teal); font-weight: bold; }
+
+  .tabs {
+    display: flex;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--text2);
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .tab .badge {
+    display: inline-block;
+    margin-left: 6px;
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 10px;
+    color: var(--text2);
+  }
+  .tab.active .badge { background: var(--accent2); color: #000; }
+
+  .content { padding: 8px 12px; max-width: 900px; margin: 0 auto; }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 1fr 130px 40px;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  .item-list { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+
+  .item-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: 1fr 130px 40px;
+    gap: 8px;
+    align-items: center;
+    transition: opacity 0.2s, border-color 0.2s;
+  }
+  .item-card.identified {
+    opacity: 0.5;
+    border-color: var(--green);
+    background: rgba(76,175,80,0.05);
+  }
+  .item-card.absent {
+    opacity: 0.35;
+    border-color: var(--gray);
+  }
+  .item-card.highlighted {
+    border-color: var(--accent2);
+    background: rgba(245,166,35,0.08);
+  }
+
+  .target-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    background: #7c3aed;
+    color: #e9d5ff;
+    border: 1px solid #a855f7;
+    vertical-align: middle;
+    letter-spacing: 0.3px;
+  }
+
+  .item-info { min-width: 0; }
+  .item-name {
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-card.identified .item-name { text-decoration: line-through; color: var(--text2); }
+  .item-effect { font-size: 11px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+  .item-counts { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 3px; }
+  .count-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .count-badge.match { border-color: var(--teal); color: var(--teal); background: rgba(38,198,218,0.12); font-weight: bold; }
+
+  .item-price { font-size: 12px; text-align: right; }
+  .price-buy { color: var(--accent2); }
+  .price-sell { color: var(--text2); font-size: 11px; }
+  .price-range { color: var(--text2); font-size: 11px; }
+
+  .item-status-col { display: flex; align-items: center; justify-content: center; }
+
+  .status-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .status-btn:hover { border-color: var(--text); }
+  .status-btn.s-unknown { border-color: var(--border); color: var(--text2); }
+  .status-btn.s-identified { border-color: var(--green); background: rgba(76,175,80,0.15); color: var(--green); }
+  .status-btn.s-absent { border-color: var(--gray); background: rgba(85,85,85,0.15); color: var(--gray); }
+
+  .status-btn .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 38px;
+    right: 0;
+    background: #333;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .status-btn:hover .tooltip { display: block; }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0 6px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0 10px;
+    font-size: 11px;
+    color: var(--text2);
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; align-items: center; gap: 4px; }
+  .stat-val { font-weight: bold; font-size: 13px; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.gray { color: var(--text2); }
+  .stat-val.accent { color: var(--accent2); }
+
+  .no-results { text-align: center; padding: 40px; color: var(--text2); font-size: 13px; }
+
+  @media (max-width: 500px) {
+    .item-card { grid-template-columns: 1fr 110px 36px; }
+    .section-header { grid-template-columns: 1fr 110px 36px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>⚔ 風来のシレン6 識別ツール</h1>
+    <div class="subtitle">巻物・杖・壺・腕輪の識別管理</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn-qr" onclick="showQR()">QR</button>
+    <button class="btn-reset" onclick="resetRun()">🔄 リセット</button>
+  </div>
+</header>
+
+<div class="modal-overlay" id="qrModal" onclick="if(event.target===this)closeQR()">
+  <div class="modal">
+    <h2>QRコード</h2>
+    <div id="qrcode"></div>
+    <p id="qrUrl"></p>
+    <button class="modal-close" onclick="closeQR()">閉じる</button>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <label>買値で絞り込み:</label>
+  <input type="number" id="priceFilter" placeholder="例: 1000" oninput="applyFilterInput()" />
+  <button class="filter-clear" onclick="clearFilter()">クリア</button>
+  <span class="filter-count" id="filterCount"></span>
+</div>
+<div class="chip-bar" id="chipBar">
+  <div class="chip-row" id="chipRowCount" style="display:none"><span class="chip-label">回数:</span></div>
+  <div class="chip-row" id="chipRowBuy"><span class="chip-label">買値:</span></div>
+  <div class="chip-row" id="chipRowSell"><span class="chip-label">売値:</span></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="switchTab('scroll')" id="tab-scroll">巻物 <span class="badge" id="badge-scroll">0/0</span></div>
+  <div class="tab" onclick="switchTab('staff')" id="tab-staff">杖 <span class="badge" id="badge-staff">0/0</span></div>
+  <div class="tab" onclick="switchTab('pot')" id="tab-pot">壺 <span class="badge" id="badge-pot">0/0</span></div>
+  <div class="tab" onclick="switchTab('bracelet')" id="tab-bracelet">腕輪 <span class="badge" id="badge-bracelet">0/0</span></div>
+  <div class="tab" onclick="switchTab('herb')" id="tab-herb">草 <span class="badge" id="badge-herb">0/0</span></div>
+</div>
+
+<div class="content">
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="border-color:#555"></div>未識別</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#4caf50"></div>識別済み</div>
+    <div class="legend-item"><div class="legend-dot" style="border-color:#555; opacity:0.4"></div>なし（今回の冒険にない）</div>
+  </div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="section-header">
+    <div>名前 / 効果</div>
+    <div style="text-align:right">買値 / 売値</div>
+    <div></div>
+  </div>
+  <div class="item-list" id="itemList"></div>
+  <div class="no-results" id="noResults" style="display:none">一致するアイテムが見つかりません</div>
+</div>
+
+<script>
+// items with counts: { name, counts[], baseBuy, effect }
+// items without counts: { name, buy, sell, effect }
+const ITEMS = {
+  scroll: [
+    { name: 'ぬれた巻物', buy: 200, sell: 80, effect: '読むとくずれて消える。フロア進行で乾く' },
+    { name: '識別の巻物', buy: 300, sell: 120, effect: '選んだ道具を識別。時々全持ち物識別', target: true },
+    { name: '銀封印の巻物', buy: 300, sell: 120, effect: '武器や盾の印1つを銀封印', target: true },
+    { name: '生物集合の巻物', buy: 300, sell: 120, effect: 'フロア中の生物を引き寄せる' },
+    { name: '混乱の巻物', buy: 300, sell: 120, effect: '部屋のモンスターを混乱状態に' },
+    { name: 'バクスイの巻物', buy: 300, sell: 120, effect: '部屋のモンスターをバクスイ状態に' },
+    { name: '道具寄せの巻物', buy: 300, sell: 120, effect: 'フロアの道具を引き寄せる' },
+    { name: 'ゾワゾワの巻物', buy: 300, sell: 120, effect: '周囲1マスのモンスターをゾワゾワ状態に' },
+    { name: '困った時の巻物', buy: 300, sell: 120, effect: 'HPを全回復。困った状況を解消' },
+    { name: '真空斬りの巻物', buy: 300, sell: 120, effect: '部屋のモンスターに40〜50ダメージ' },
+    { name: '印増大の巻物', buy: 400, sell: 160, effect: '武器や盾の印枠+1（最大30まで）', target: true },
+    { name: '印消しの巻物', buy: 400, sell: 160, effect: '武器や盾の最後の印を消す', target: true },
+    { name: 'メッキの巻物', buy: 400, sell: 160, effect: '武器や盾をメッキ。命中率上昇', target: true },
+    { name: '地の恵みの巻物', buy: 400, sell: 160, effect: '盾の強化値+1（時々+3）', target: true },
+    { name: '天の恵みの巻物', buy: 400, sell: 160, effect: '武器の強化値+1（時々+3）', target: true },
+    { name: 'おにぎりの巻物', buy: 400, sell: 160, effect: '選んだ道具を大きいおにぎりに変える', target: true },
+    { name: '罠消しの巻物', buy: 600, sell: 240, effect: 'フロアの罠が全て消える' },
+    { name: 'あかりの巻物', buy: 600, sell: 240, effect: 'フロアの地形と全生物・道具を表示' },
+    { name: '迷子の巻物', buy: 600, sell: 240, effect: 'フロアの表示を最初の状態に戻す' },
+    { name: 'おはらいの巻物', buy: 600, sell: 240, effect: '選んだ道具の呪いを解く', target: true },
+    { name: '敵加速の巻物', buy: 1000, sell: 400, effect: '部屋のモンスターの行動速度が1段階上昇' },
+    { name: '拾えずの巻物', buy: 1000, sell: 400, effect: '落ちている道具が拾えなくなる' },
+    { name: 'くちなしの巻物', buy: 1000, sell: 400, effect: 'くちなし状態に。行動が制限される' },
+    { name: 'バクチの巻物', buy: 1000, sell: 400, effect: '10000ギタン獲得 or 無一文になる' },
+    { name: '大部屋の巻物', buy: 1000, sell: 400, effect: 'フロアの壁がくずれて大部屋に' },
+    { name: '水がれの巻物', buy: 1000, sell: 400, effect: 'フロアの水場が干上がり歩ける' },
+    { name: '魔物部屋の巻物', buy: 1000, sell: 400, effect: '部屋がモンスターハウスになる' },
+    { name: '罠の巻物', buy: 1000, sell: 400, effect: 'フロア中に罠が配置される' },
+    { name: '呪いの巻物', buy: 1000, sell: 400, effect: '選んだ道具を呪う', target: true },
+    { name: '吸い出しの巻物', buy: 1000, sell: 400, effect: '選んだ壺の中身を周囲に落とす', target: true },
+    { name: '壺増大の巻物', buy: 1000, sell: 400, effect: '選んだ壺の容量+1（最大6まで）', target: true },
+    { name: '銀はがしの巻物', buy: 1000, sell: 400, effect: '選んだ武器や盾の銀封印2〜4つをはがす', target: true },
+    { name: '脱出の巻物', buy: 1000, sell: 400, effect: 'ダンジョンから脱出可能' },
+    { name: '聖域の巻物', buy: 1000, sell: 400, effect: '置くと地面が聖域に。モンスター攻撃制限' },
+    { name: '白紙の巻物', buy: 1000, sell: 400, effect: '手に入れたことのある巻物として使用可能', target: true },
+    { name: '全滅の巻物', buy: 3000, sell: 1200, effect: 'その部屋のモンスターが消滅' },
+    { name: 'ねだやしの巻物', buy: 10000, sell: 4000, effect: '投げ当てたモンスターが消滅。種族が出現しなくなる' },
+  ],
+  staff: [
+    { name: '感電の杖',       counts: [4,5,6],   baseBuy: 900,  effect: '当たったモンスターに感電ダメージ（回数分）' },
+    { name: '封印の杖',       counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターの特殊能力を封じる' },
+    { name: 'かなしばりの杖', counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターをかなしばり状態にする' },
+    { name: '導きの杖',       counts: [4,5,6],   baseBuy: 900,  effect: '使った方向の通路の先まで移動させる' },
+    { name: '場所がえの杖',   counts: [5,6,7],   baseBuy: 1000, effect: 'シレンとモンスターの位置を入れ替える' },
+    { name: '吹き飛ばしの杖', counts: [5,6,7],   baseBuy: 1000, effect: '対象を壁にぶつかるまで吹き飛ばす' },
+    { name: '飛びつきの杖',   counts: [5,6,7],   baseBuy: 1000, effect: '対象に向かって飛びつく' },
+    { name: 'ただの杖',       counts: [5,6,7],   baseBuy: 1000, effect: '使っても何も起こらない' },
+    { name: '転ばぬ先の杖',   counts: [5,6,7],   baseBuy: 1000, effect: 'ゾワゾワ・転倒・弾きを防ぐ（回数消費）' },
+    { name: '鈍足の杖',       counts: [4,5,6],   baseBuy: 1100, effect: 'モンスターの速度を1段階落とす' },
+    { name: 'トンネルの杖',   counts: [4,5,6],   baseBuy: 1100, effect: '壁を直線に掘り進む' },
+    { name: '加速の杖',       counts: [4,5,6],   baseBuy: 1100, effect: 'モンスターの速度を1段階上げる' },
+    { name: '土塊の杖',       counts: [4,5,6],   baseBuy: 1100, effect: '壁を生成する' },
+    { name: '不幸の杖',       counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターの強化値・レベルを下げる' },
+    { name: '幸せの杖',       counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターをレベルアップさせる' },
+    { name: '一時しのぎの杖', counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターをフロアの端に飛ばす（0になると消滅）' },
+    { name: '痛み分けの杖',   counts: [5,6,7],   baseBuy: 1500, effect: 'シレンとモンスターのHPを平均化' },
+    { name: 'ガイコツまどうの杖', counts: [5,6,7], baseBuy: 1500, effect: '矢・石・草・杖をランダムに飛ばす' },
+    { name: '身代わりの杖',   counts: [4,5,6],   baseBuy: 2400, effect: '対象の位置に身代わりを作る' },
+    { name: '桃まんの杖',     counts: [4,5,6],   baseBuy: 2400, effect: 'モンスターを桃まんに変える' },
+  ],
+  pot: [
+    { name: 'やりすごしの壺', counts: [3,4,5],   baseBuy: 1100, effect: '中に入りターン経過でモンスターをやりすごす' },
+    { name: '識別の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具を識別する' },
+    { name: 'ただの壺',       counts: [3,4,5],   baseBuy: 1100, effect: '道具を入れておける（開封不可）' },
+    { name: '変化の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具がランダムに変化する' },
+    { name: '保存の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '道具を保存できる（腹が減らない）' },
+    { name: '底抜けの壺',     counts: [2,3,4],   baseBuy: 1200, effect: '入れた道具が下の階に落ちる' },
+    { name: '倉庫の壺',       counts: [2,3,4,5], baseBuy: 1200, effect: '最寄りの倉庫に道具を送る' },
+    { name: '換金の壺',       counts: [3,4,5],   baseBuy: 1300, effect: '入れた道具をギタンに変換する' },
+    { name: '割れない壺',     counts: [3,4,5],   baseBuy: 1300, effect: '壊れない・投げても割れない' },
+    { name: '手封じの壺',     counts: [3,4,5],   baseBuy: 1300, effect: '入れると手が使えなくなる（罠）' },
+    { name: 'おはらいの壺',   counts: [2,3,4],   baseBuy: 1800, effect: '入れた道具の呪いを解く' },
+    { name: '呪いの壺',       counts: [2,3,4],   baseBuy: 1800, effect: '入れた道具が呪われる（罠）' },
+    { name: '笑いの壺',       counts: [2,3],     baseBuy: 2200, effect: '投げると周囲のモンスターが笑い状態に' },
+    { name: '背中の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '背中に入れた道具が自動で使われる' },
+    { name: 'トドの壺',       counts: [3,4,5],   baseBuy: 2300, effect: '中からトドが現れ道具を盗む（罠）' },
+    { name: '水鉄砲の壺',     counts: [3,4,5],   baseBuy: 2300, effect: '水を飛ばす（ドラゴン系に有効）' },
+    { name: '魔物の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '開けるとモンスターが出現（罠）' },
+    { name: 'ビックリの壺',   counts: [3,4,5],   baseBuy: 2300, effect: '開けると驚きの効果が発動（罠）' },
+    { name: '合成の壺',       counts: [3,4],     baseBuy: 6300, effect: '入れた武器・盾を合成する' },
+    { name: '強化の壺',       counts: [2,3],     baseBuy: 10200, effect: '入れた武器・盾の強化値+1' },
+    { name: '弱化の壺',       counts: [2,3],     baseBuy: 10200, effect: '入れた武器・盾の強化値-1（罠）' },
+  ],
+  herb: [
+    { name: '雑草',       buy: 10,   sell: 4,   effect: '食べても何も起こらない' },
+    { name: '薬草',       buy: 40,   sell: 10,  effect: 'HPを少し回復する' },
+    { name: '暴走の種',   buy: 50,   sell: 20,  effect: '投げると暴走状態にする' },
+    { name: '毒草',       buy: 50,   sell: 20,  effect: '食べると毒状態。投げると敵を毒にする' },
+    { name: '目つぶし草', buy: 70,   sell: 25,  effect: '食べると目つぶし状態。投げると敵を目つぶしにする' },
+    { name: 'パワーアップ草', buy: 70, sell: 25, effect: 'ちから+2' },
+    { name: 'めぐすり草', buy: 70,   sell: 25,  effect: '壁の中や遠くまで見えるようになる' },
+    { name: '混乱草',     buy: 70,   sell: 25,  effect: '食べると混乱状態。投げると敵を混乱にする' },
+    { name: 'すばやさ草', buy: 70,   sell: 25,  effect: '食べると行動速度が1段階上がる' },
+    { name: '睡眠草',     buy: 70,   sell: 25,  effect: '食べると睡眠状態。投げると敵を睡眠にする' },
+    { name: '弟切草',     buy: 80,   sell: 30,  effect: 'HPをかなり回復する' },
+    { name: 'くねくね草', buy: 100,  sell: 40,  effect: '食べるとくねくね状態になる' },
+    { name: '高飛び草',   buy: 100,  sell: 40,  effect: 'フロア内のどこかにワープする' },
+    { name: 'いやし草',   buy: 200,  sell: 80,  effect: '状態異常を全て治す' },
+    { name: '胃拡張の種', buy: 200,  sell: 80,  effect: '最大満腹度+25' },
+    { name: '胃縮小の種', buy: 200,  sell: 80,  effect: '最大満腹度-25（罠）' },
+    { name: 'かぐわし草', buy: 200,  sell: 80,  effect: '周囲のモンスターを引き寄せる' },
+    { name: 'ドラゴン草', buy: 250,  sell: 100, effect: '正面に炎を吐く（遠距離攻撃）' },
+    { name: '無敵草',     buy: 400,  sell: 160, effect: '一定ターン無敵になる' },
+    { name: '復活の草',   buy: 400,  sell: 160, effect: '一度だけ死から復活する' },
+    { name: '不幸の種',   buy: 400,  sell: 160, effect: '投げるとモンスターのレベルを下げる' },
+    { name: '命の草',     buy: 500,  sell: 200, effect: '最大HP+10' },
+    { name: '毒消し草',   buy: 600,  sell: 240, effect: '毒状態を解除する' },
+    { name: 'ちからの草', buy: 700,  sell: 280, effect: '最大ちから+3' },
+    { name: 'しあわせ草', buy: 1000, sell: 400, effect: '経験値を大量に獲得する' },
+    { name: '超不幸の種', buy: 2000, sell: 800, effect: '投げるとモンスターを大幅レベルダウンさせる' },
+    { name: '天使の種',   buy: 2000, sell: 800, effect: 'レベル+1する' },
+  ],
+  bracelet: [
+    { name: '痛恨の腕輪', buy: 1500, sell: 600, effect: '痛恨の一撃を受けやすくなる' },
+    { name: 'ボヨヨンの腕輪', buy: 1500, sell: 600, effect: '矢や投げた道具が壁で反射する' },
+    { name: '罠増しの腕輪', buy: 1500, sell: 600, effect: 'ターン経過でフロアに罠が増える' },
+    { name: '垂れ流しの腕輪', buy: 1500, sell: 600, effect: '一定確率で持ち物を落とす' },
+    { name: '連射の腕輪', buy: 1500, sell: 600, effect: '矢・道具の命中率上昇。2連射可能' },
+    { name: '諸刃の腕輪', buy: 1500, sell: 600, effect: '会心の一撃が出せるが痛恨も受けやすい' },
+    { name: 'ヘタ投げの腕輪', buy: 1500, sell: 600, effect: '撃った矢・投げた石が必ずはずれる' },
+    { name: '遠投の腕輪', buy: 1500, sell: 600, effect: '投げた道具が貫通する' },
+    { name: '爆発の腕輪', buy: 1500, sell: 600, effect: '一定確率で自身と周囲1マスが爆発' },
+    { name: '高飛びの腕輪', buy: 1500, sell: 600, effect: '一定確率でフロアのどこかにワープ' },
+    { name: '金垂れ流しの腕輪', buy: 1500, sell: 600, effect: '一定確率でギタンを落とす' },
+    { name: 'ちからの腕輪', buy: 2000, sell: 800, effect: 'ちから+3、ちからの最大値+3' },
+    { name: '睡眠よけの腕輪', buy: 2500, sell: 1000, effect: '睡眠を防ぐ' },
+    { name: '大砲強化の腕輪', buy: 2500, sell: 1000, effect: '大砲の与ダメージ増加' },
+    { name: '道具感知の腕輪', buy: 2500, sell: 1000, effect: 'フロア内の道具がマップに表示される' },
+    { name: '気配察知の腕輪', buy: 2500, sell: 1000, effect: 'フロア内の生物がマップに表示される' },
+    { name: '呪いよけの腕輪', buy: 3000, sell: 1200, effect: '呪いを防ぐ' },
+    { name: '魔物呼びの腕輪', buy: 3000, sell: 1200, effect: 'モンスターが出現しやすくなる' },
+    { name: '浮遊の腕輪', buy: 3000, sell: 1200, effect: '空中を歩ける。罠にかからない' },
+    { name: '水グモの腕輪', buy: 3000, sell: 1200, effect: '水上を歩ける。水中の道具を拾える' },
+    { name: '胃縮小の腕輪', buy: 3500, sell: 1400, effect: '最大満腹度-25' },
+    { name: '胃拡張の腕輪', buy: 3500, sell: 1400, effect: '最大満腹度+25' },
+    { name: '値切りの腕輪', buy: 3500, sell: 1400, effect: 'ダンジョンの店の商品が半額になる' },
+    { name: '弾きよけの腕輪', buy: 3500, sell: 1400, effect: '装備や持ち物を弾かれるのを防ぐ' },
+    { name: 'しあわせの腕輪', buy: 4000, sell: 1600, effect: '毎ターン経験値+1' },
+    { name: '混乱よけの腕輪', buy: 4000, sell: 1600, effect: '混乱を防ぐ' },
+    { name: '裏道の腕輪', buy: 5000, sell: 2000, effect: '隠れた通路を発見できる' },
+    { name: '回復の腕輪', buy: 5000, sell: 2000, effect: 'HP自然回復量増加。満腹度減少速度UP' },
+    { name: '錆よけの腕輪', buy: 5000, sell: 2000, effect: '強化値が下がらなくなる' },
+    { name: '透視の腕輪', buy: 5000, sell: 2000, effect: 'フロア内の生物と道具がマップに表示される' },
+    { name: 'すれちがいの腕輪', buy: 5000, sell: 2000, effect: 'モンスターとすれ違い可能' },
+    { name: '壁抜けの腕輪', buy: 6500, sell: 2600, effect: '壁の中を移動可能（毎ターンダメージあり）' },
+    { name: '忍び足の腕輪', buy: 6500, sell: 2600, effect: '仮眠状態のモンスターを起こさなくなる' },
+    { name: '毒消しの腕輪', buy: 6500, sell: 2600, effect: '毒でちからや行動速度が下がらない' },
+    { name: '鑑定師の腕輪', buy: 7500, sell: 3000, effect: '未識別の道具が拾うだけで識別される' },
+    { name: '罠師の腕輪', buy: 7500, sell: 3000, effect: '罠が見える。罠を拾えて置き直せる' },
+    { name: '百発百中の腕輪', buy: 15000, sell: 6000, effect: '投げた矢や道具が必中化' },
+  ],
+};
+
+// Price helpers for count-based items
+function getBuy(item, count) {
+  if (!item.counts) return item.buy;
+  return item.baseBuy + (count - item.counts[0]) * 100;
+}
+function getSell(item, count) {
+  if (!item.counts) return item.sell;
+  return Math.floor(getBuy(item, count) / 2.5);
+}
+function getMinBuy(item) { return item.counts ? item.baseBuy : item.buy; }
+function getMaxBuy(item) {
+  if (!item.counts) return item.buy;
+  return item.baseBuy + (item.counts[item.counts.length - 1] - item.counts[0]) * 100;
+}
+
+// State
+let state = loadState();
+let currentTab = 'scroll';
+let priceFilter = null;
+let selectedPrices = new Set();
+let selectedSellPrices = new Set();
+let countFilter = null;
+
+function loadState() {
+  const defaults = { scroll: {}, staff: {}, pot: {}, bracelet: {}, herb: {} };
+  try {
+    const saved = localStorage.getItem('shiren6-id-state');
+    if (saved) return Object.assign(defaults, JSON.parse(saved));
+  } catch(e) {}
+  return defaults;
+}
+function saveState() { localStorage.setItem('shiren6-id-state', JSON.stringify(state)); }
+
+function getStatus(cat, name) { return state[cat][name] || 'unknown'; }
+
+function cycleStatus(cat, name) {
+  const cur = getStatus(cat, name);
+  state[cat][name] = cur === 'unknown' ? 'identified' : cur === 'identified' ? 'absent' : 'unknown';
+  saveState();
+  render();
+}
+
+function resetRun() {
+  if (!confirm('今回の冒険の識別状態をリセットしますか？')) return;
+  state = { scroll: {}, staff: {}, pot: {}, bracelet: {} };
+  saveState();
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  selectedPrices.clear();
+  selectedSellPrices.clear();
+  countFilter = null;
+  renderChips();
+  render();
+}
+
+function applyFilterInput() {
+  const val = document.getElementById('priceFilter').value.trim();
+  priceFilter = val === '' ? null : parseInt(val, 10);
+  if (priceFilter !== null) { selectedPrices.clear(); selectedSellPrices.clear(); }
+  renderChips();
+  render();
+}
+
+function toggleChip(price, type) {
+  document.getElementById('priceFilter').value = '';
+  priceFilter = null;
+  const set = type === 'sell' ? selectedSellPrices : selectedPrices;
+  if (set.has(price)) { set.delete(price); } else { set.add(price); }
+  renderChips();
+  render();
+}
+
+function toggleCount(c) {
+  countFilter = countFilter === c ? null : c;
+  document.getElementById('priceFilter').value = '';
+  priceFilter = null;
+  selectedPrices.clear();
+  selectedSellPrices.clear();
+  renderChips();
+  render();
+}
+
+function clearFilter() {
+  document.getElementById('priceFilter').value = '';
+  priceFilter = null;
+  selectedPrices.clear();
+  selectedSellPrices.clear();
+  countFilter = null;
+  renderChips();
+  render();
+}
+
+function hasCountItems() { return currentTab === 'staff' || currentTab === 'pot'; }
+
+function renderChips() {
+  const items = ITEMS[currentTab];
+
+  // Count chips (staff/pot only)
+  const countRow = document.getElementById('chipRowCount');
+  if (hasCountItems()) {
+    const allCounts = new Set();
+    items.forEach(it => it.counts && it.counts.forEach(c => allCounts.add(c)));
+    const counts = [...allCounts].sort((a, b) => a - b);
+    const unit = currentTab === 'staff' ? '回' : '個';
+    countRow.style.display = 'flex';
+    countRow.innerHTML = '<span class="chip-label">回数:</span>' +
+      counts.map(c =>
+        `<span class="price-chip count${countFilter === c ? ' active count' : ''}" onclick="toggleCount(${c})">${c}${unit}</span>`
+      ).join('');
+  } else {
+    countRow.style.display = 'none';
+  }
+
+  // Determine effective price lists based on countFilter
+  let buyPricesSet = new Set();
+  let sellPricesSet = new Set();
+  items.forEach(it => {
+    if (it.counts) {
+      const relevantCounts = countFilter ? it.counts.filter(c => c === countFilter) : it.counts;
+      relevantCounts.forEach(c => {
+        buyPricesSet.add(getBuy(it, c));
+        sellPricesSet.add(getSell(it, c));
+      });
+    } else {
+      buyPricesSet.add(it.buy);
+      sellPricesSet.add(it.sell);
+    }
+  });
+  const buyPrices  = [...buyPricesSet].sort((a, b) => a - b);
+  const sellPrices = [...sellPricesSet].sort((a, b) => a - b);
+
+  document.getElementById('chipRowBuy').innerHTML =
+    '<span class="chip-label">買値:</span>' +
+    buyPrices.map(p =>
+      `<span class="price-chip buy${selectedPrices.has(p) ? ' active buy' : ''}" onclick="toggleChip(${p},'buy')">${p.toLocaleString()}G</span>`
+    ).join('');
+  document.getElementById('chipRowSell').innerHTML =
+    '<span class="chip-label">売値:</span>' +
+    sellPrices.map(p =>
+      `<span class="price-chip sell${selectedSellPrices.has(p) ? ' active sell' : ''}" onclick="toggleChip(${p},'sell')">${p.toLocaleString()}G</span>`
+    ).join('');
+}
+
+function statusIcon(s) { return s === 'identified' ? '✓' : s === 'absent' ? '✕' : '?'; }
+function statusLabel(s) {
+  if (s === 'identified') return '識別済み → なし にする';
+  if (s === 'absent') return 'なし → 未識別 にする';
+  return '未識別 → 識別済み にする';
+}
+
+function render() {
+  const items = ITEMS[currentTab];
+
+  // Update all badges
+  Object.keys(ITEMS).forEach(cat => {
+    const cnt = Object.values(state[cat]).filter(v => v === 'identified').length;
+    document.getElementById('badge-' + cat).textContent = cnt + '/' + ITEMS[cat].length;
+  });
+
+  // Apply count filter first
+  let filtered = items;
+  if (countFilter !== null && hasCountItems()) {
+    filtered = filtered.filter(it => it.counts && it.counts.includes(countFilter));
+  }
+
+  // Apply price filter
+  if (priceFilter !== null && !isNaN(priceFilter)) {
+    filtered = filtered.filter(it => {
+      if (it.counts) {
+        const relevant = countFilter ? [countFilter] : it.counts;
+        return relevant.some(c => getBuy(it, c) === priceFilter || getSell(it, c) === priceFilter);
+      }
+      return it.buy === priceFilter || it.sell === priceFilter;
+    });
+  } else if (selectedPrices.size > 0 || selectedSellPrices.size > 0) {
+    filtered = filtered.filter(it => {
+      if (it.counts) {
+        const relevant = countFilter ? [countFilter] : it.counts;
+        return relevant.some(c =>
+          (selectedPrices.size > 0 && selectedPrices.has(getBuy(it, c))) ||
+          (selectedSellPrices.size > 0 && selectedSellPrices.has(getSell(it, c)))
+        );
+      }
+      return (selectedPrices.size > 0 && selectedPrices.has(it.buy)) ||
+             (selectedSellPrices.size > 0 && selectedSellPrices.has(it.sell));
+    });
+  }
+
+  // Sort
+  filtered = [...filtered].sort((a, b) => {
+    const order = { unknown: 0, identified: 1, absent: 2 };
+    return order[getStatus(currentTab, a.name)] - order[getStatus(currentTab, b.name)];
+  });
+
+  // Stats
+  const total = items.length;
+  const identified = items.filter(it => getStatus(currentTab, it.name) === 'identified').length;
+  const absent = items.filter(it => getStatus(currentTab, it.name) === 'absent').length;
+  const unknown = total - identified - absent;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><span class="stat-val accent">${unknown}</span> 未識別</div>
+    <div class="stat"><span class="stat-val green">${identified}</span> 識別済み</div>
+    <div class="stat"><span class="stat-val gray">${absent}</span> なし</div>
+    <div class="stat" style="margin-left:auto; color: var(--text2)">全${total}種</div>
+  `;
+
+  // Filter count label
+  const anyFilter = (priceFilter !== null && !isNaN(priceFilter)) ||
+                    selectedPrices.size > 0 || selectedSellPrices.size > 0 || countFilter !== null;
+  document.getElementById('filterCount').textContent = anyFilter ? `${filtered.length}件該当` : '';
+
+  // Render items
+  const list = document.getElementById('itemList');
+  const noResults = document.getElementById('noResults');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '';
+    noResults.style.display = 'block';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  list.innerHTML = filtered.map(item => {
+    const status = getStatus(currentTab, item.name);
+
+    // Price display
+    let priceHtml;
+    if (item.counts) {
+      if (countFilter !== null && item.counts.includes(countFilter)) {
+        const b = getBuy(item, countFilter);
+        const s = getSell(item, countFilter);
+        priceHtml = `<div class="price-buy">${b.toLocaleString()}G</div><div class="price-sell">売: ${s.toLocaleString()}G</div>`;
+      } else {
+        const minB = getMinBuy(item);
+        const maxB = getMaxBuy(item);
+        const minS = getSell(item, item.counts[0]);
+        const maxS = getSell(item, item.counts[item.counts.length - 1]);
+        if (minB === maxB) {
+          priceHtml = `<div class="price-buy">${minB.toLocaleString()}G</div><div class="price-sell">売: ${minS.toLocaleString()}G</div>`;
+        } else {
+          priceHtml = `<div class="price-buy">${minB.toLocaleString()}〜${maxB.toLocaleString()}G</div><div class="price-sell">売: ${minS.toLocaleString()}〜${maxS.toLocaleString()}G</div>`;
+        }
+      }
+    } else {
+      priceHtml = `<div class="price-buy">${item.buy.toLocaleString()}G</div><div class="price-sell">売: ${item.sell.toLocaleString()}G</div>`;
+    }
+
+    // Count badges
+    let countHtml = '';
+    if (item.counts) {
+      const unit = currentTab === 'staff' ? '回' : '個';
+      countHtml = `<div class="item-counts">${
+        item.counts.map(c =>
+          `<span class="count-badge${countFilter === c ? ' match' : ''}">${c}${unit}</span>`
+        ).join('')
+      }</div>`;
+    }
+
+    // Highlight if matches active price filter
+    const isHighlighted = (() => {
+      if (!anyFilter) return false;
+      if (item.counts) {
+        const relevant = countFilter ? item.counts.filter(c => c === countFilter) : item.counts;
+        if (priceFilter !== null) return relevant.some(c => getBuy(item, c) === priceFilter || getSell(item, c) === priceFilter);
+        if (selectedPrices.size > 0 || selectedSellPrices.size > 0)
+          return relevant.some(c => selectedPrices.has(getBuy(item, c)) || selectedSellPrices.has(getSell(item, c)));
+        return countFilter !== null;
+      }
+      if (priceFilter !== null) return item.buy === priceFilter || item.sell === priceFilter;
+      return selectedPrices.has(item.buy) || selectedSellPrices.has(item.sell);
+    })();
+
+    return `
+      <div class="item-card ${status === 'identified' ? 'identified' : status === 'absent' ? 'absent' : ''} ${isHighlighted ? 'highlighted' : ''}">
+        <div class="item-info">
+          <div class="item-name">${item.name}${item.target ? '<span class="target-badge">どれ</span>' : ''}</div>
+          <div class="item-effect">${item.effect}</div>
+          ${countHtml}
+        </div>
+        <div class="item-price">${priceHtml}</div>
+        <div class="item-status-col">
+          <button class="status-btn s-${status}" onclick="cycleStatus('${currentTab}', '${item.name.replace(/'/g, "\\'")}')">
+            ${statusIcon(status)}
+            <span class="tooltip">${statusLabel(status)}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+renderChips();
+render();
+
+let qrGenerated = false;
+function showQR() {
+  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const url = window.location.href;
+  const qrUrl = isLocalhost
+    ? url.replace(/^(https?:\/\/)(localhost|127\.0\.0\.1)/, '$1' + (window._localIP || location.hostname))
+    : url;
+  const displayNote = isLocalhost
+    ? url + '\n⚠ 他デバイス用: localhostをMacのIPに変えてください'
+    : url;
+  document.getElementById('qrUrl').textContent = displayNote;
+  if (!qrGenerated) {
+    new QRCode(document.getElementById('qrcode'), {
+      text: qrUrl,
+      width: 180,
+      height: 180,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+    qrGenerated = true;
+  }
+  document.getElementById('qrModal').classList.add('open');
+}
+function closeQR() {
+  document.getElementById('qrModal').classList.remove('open');
+}
+</script>
+<footer style="text-align:center; padding:24px 0 16px; font-size:11px; color:#666; border-top:1px solid #2a3a5e; margin-top:20px;">
+  <a href="privacy.html" style="color:#a0a0b0; text-decoration:none;">プライバシーポリシー</a>
+  &nbsp;|&nbsp; 風来のシレン6 識別ツール（非公式）
+</footer>
+</body>
+</html>
