@@ -150,11 +150,16 @@
   .price-chip.active.sell { border-color: var(--blue); background: rgba(79,195,247,0.14); color: var(--blue); font-weight: bold; }
   .price-chip.active.count { border-color: var(--teal); background: rgba(38,198,218,0.18); color: var(--teal); font-weight: bold; }
 
-  .tabs {
-    display: flex;
+  .tabs-wrapper {
     background: var(--bg2);
     border-bottom: 1px solid var(--border);
+  }
+  .tabs {
+    display: flex;
     overflow-x: auto;
+  }
+  .tabs-row2 {
+    border-top: 1px solid var(--border);
   }
   .tab {
     padding: 10px 20px;
@@ -232,6 +237,26 @@
     border: 1px solid #a855f7;
     vertical-align: middle;
     letter-spacing: 0.3px;
+  }
+
+  .hetero-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    background: #065f46;
+    color: #6ee7b7;
+    border: 1px solid #10b981;
+    vertical-align: middle;
+    letter-spacing: 0.3px;
+  }
+
+  .item-stat {
+    font-size: 11px;
+    color: var(--accent2);
+    margin-top: 1px;
   }
 
   .item-info { min-width: 0; }
@@ -361,12 +386,18 @@
   <div class="chip-row" id="chipRowSell"><span class="chip-label">売値:</span></div>
 </div>
 
-<div class="tabs" id="tabs">
-  <div class="tab active" onclick="switchTab('scroll')" id="tab-scroll">巻物 <span class="badge" id="badge-scroll">0/0</span></div>
-  <div class="tab" onclick="switchTab('staff')" id="tab-staff">杖 <span class="badge" id="badge-staff">0/0</span></div>
-  <div class="tab" onclick="switchTab('pot')" id="tab-pot">壺 <span class="badge" id="badge-pot">0/0</span></div>
-  <div class="tab" onclick="switchTab('bracelet')" id="tab-bracelet">腕輪 <span class="badge" id="badge-bracelet">0/0</span></div>
-  <div class="tab" onclick="switchTab('herb')" id="tab-herb">草 <span class="badge" id="badge-herb">0/0</span></div>
+<div class="tabs-wrapper">
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="switchTab('herb')" id="tab-herb">草 <span class="badge" id="badge-herb">0/0</span></div>
+    <div class="tab" onclick="switchTab('scroll')" id="tab-scroll">巻物 <span class="badge" id="badge-scroll">0/0</span></div>
+    <div class="tab" onclick="switchTab('staff')" id="tab-staff">杖 <span class="badge" id="badge-staff">0/0</span></div>
+    <div class="tab" onclick="switchTab('pot')" id="tab-pot">壺 <span class="badge" id="badge-pot">0/0</span></div>
+    <div class="tab" onclick="switchTab('bracelet')" id="tab-bracelet">腕輪 <span class="badge" id="badge-bracelet">0/0</span></div>
+  </div>
+  <div class="tabs tabs-row2">
+    <div class="tab" onclick="switchTab('weapon')" id="tab-weapon">武器 <span class="badge" id="badge-weapon">0/0</span></div>
+    <div class="tab" onclick="switchTab('shield')" id="tab-shield">盾 <span class="badge" id="badge-shield">0/0</span></div>
+  </div>
 </div>
 
 <div class="content">
@@ -397,7 +428,7 @@ const ITEMS = {
     { name: '混乱の巻物', buy: 300, sell: 120, effect: '部屋のモンスターを混乱状態に' },
     { name: 'バクスイの巻物', buy: 300, sell: 120, effect: '部屋のモンスターをバクスイ状態に' },
     { name: '道具寄せの巻物', buy: 300, sell: 120, effect: 'フロアの道具を引き寄せる' },
-    { name: 'ゾワゾワの巻物', buy: 300, sell: 120, effect: '周囲1マスのモンスターをゾワゾワ状態に' },
+    { name: 'ゾワゾワの巻物', buy: 300, sell: 120, effect: '周囲1マスのモンスターをゾワゾワ状態に', hetero: true },
     { name: '困った時の巻物', buy: 300, sell: 120, effect: 'HPを全回復。困った状況を解消' },
     { name: '真空斬りの巻物', buy: 300, sell: 120, effect: '部屋のモンスターに40〜50ダメージ' },
     { name: '印増大の巻物', buy: 400, sell: 160, effect: '武器や盾の印枠+1（最大30まで）', target: true },
@@ -405,7 +436,7 @@ const ITEMS = {
     { name: 'メッキの巻物', buy: 400, sell: 160, effect: '武器や盾をメッキ。命中率上昇', target: true },
     { name: '地の恵みの巻物', buy: 400, sell: 160, effect: '盾の強化値+1（時々+3）', target: true },
     { name: '天の恵みの巻物', buy: 400, sell: 160, effect: '武器の強化値+1（時々+3）', target: true },
-    { name: 'おにぎりの巻物', buy: 400, sell: 160, effect: '選んだ道具を大きいおにぎりに変える', target: true },
+    { name: 'おにぎりの巻物', buy: 400, sell: 160, effect: '選んだ道具を大きいおにぎりに変える', target: true, hetero: true },
     { name: '罠消しの巻物', buy: 600, sell: 240, effect: 'フロアの罠が全て消える' },
     { name: 'あかりの巻物', buy: 600, sell: 240, effect: 'フロアの地形と全生物・道具を表示' },
     { name: '迷子の巻物', buy: 600, sell: 240, effect: 'フロアの表示を最初の状態に戻す' },
@@ -429,78 +460,78 @@ const ITEMS = {
     { name: 'ねだやしの巻物', buy: 10000, sell: 4000, effect: '投げ当てたモンスターが消滅。種族が出現しなくなる' },
   ],
   staff: [
-    { name: '感電の杖',       counts: [4,5,6],   baseBuy: 900,  effect: '当たったモンスターに感電ダメージ（回数分）' },
-    { name: '封印の杖',       counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターの特殊能力を封じる' },
-    { name: 'かなしばりの杖', counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターをかなしばり状態にする' },
-    { name: '導きの杖',       counts: [4,5,6],   baseBuy: 900,  effect: '使った方向の通路の先まで移動させる' },
+    { name: '感電の杖',       counts: [4,5,6],   baseBuy: 900,  effect: '当たった相手に25ダメージ＋隣接する生物にも同じ感電ダメージ' },
+    { name: '封印の杖',       counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターの特殊能力を封じる', hetero: true },
+    { name: 'かなしばりの杖', counts: [4,5,6],   baseBuy: 900,  effect: 'モンスターをかなしばり状態にする', hetero: true },
+    { name: '導きの杖',       counts: [4,5,6],   baseBuy: 900,  effect: '階段に向かって魔法弾が飛び、階段の位置がマップに表示される' },
     { name: '場所がえの杖',   counts: [5,6,7],   baseBuy: 1000, effect: 'シレンとモンスターの位置を入れ替える' },
-    { name: '吹き飛ばしの杖', counts: [5,6,7],   baseBuy: 1000, effect: '対象を壁にぶつかるまで吹き飛ばす' },
+    { name: '吹き飛ばしの杖', counts: [5,6,7],   baseBuy: 1000, effect: '当たった相手を10マス吹き飛ばす（壁にぶつかると5ダメージ）' },
     { name: '飛びつきの杖',   counts: [5,6,7],   baseBuy: 1000, effect: '対象に向かって飛びつく' },
     { name: 'ただの杖',       counts: [5,6,7],   baseBuy: 1000, effect: '使っても何も起こらない' },
-    { name: '転ばぬ先の杖',   counts: [5,6,7],   baseBuy: 1000, effect: 'ゾワゾワ・転倒・弾きを防ぐ（回数消費）' },
+    { name: '転ばぬ先の杖',   counts: [5,6,7],   baseBuy: 1000, effect: '転びの罠などで転ぶのを防ぐ（効果発揮時に回数減少）' },
     { name: '鈍足の杖',       counts: [4,5,6],   baseBuy: 1100, effect: 'モンスターの速度を1段階落とす' },
     { name: 'トンネルの杖',   counts: [4,5,6],   baseBuy: 1100, effect: '壁を直線に掘り進む' },
     { name: '加速の杖',       counts: [4,5,6],   baseBuy: 1100, effect: 'モンスターの速度を1段階上げる' },
     { name: '土塊の杖',       counts: [4,5,6],   baseBuy: 1100, effect: '壁を生成する' },
-    { name: '不幸の杖',       counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターの強化値・レベルを下げる' },
+    { name: '不幸の杖',       counts: [4,5,6],   baseBuy: 1400, effect: '当たった相手のレベルを1下げる' },
     { name: '幸せの杖',       counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターをレベルアップさせる' },
-    { name: '一時しのぎの杖', counts: [4,5,6],   baseBuy: 1400, effect: 'モンスターをフロアの端に飛ばす（0になると消滅）' },
-    { name: '痛み分けの杖',   counts: [5,6,7],   baseBuy: 1500, effect: 'シレンとモンスターのHPを平均化' },
-    { name: 'ガイコツまどうの杖', counts: [5,6,7], baseBuy: 1500, effect: '矢・石・草・杖をランダムに飛ばす' },
-    { name: '身代わりの杖',   counts: [4,5,6],   baseBuy: 2400, effect: '対象の位置に身代わりを作る' },
+    { name: '一時しのぎの杖', counts: [4,5,6],   baseBuy: 1400, effect: '当たった相手を階段にワープさせかなしばり状態にする' },
+    { name: '痛み分けの杖',   counts: [5,6,7],   baseBuy: 1500, effect: '対象を痛み分け状態にし、自分が受けたダメージを相手も受ける' },
+    { name: 'ガイコツまどうの杖', counts: [5,6,7], baseBuy: 1500, effect: '混乱・睡眠・ワープ・行動速度低下のいずれかをランダムに与える' },
+    { name: '身代わりの杖',   counts: [4,5,6],   baseBuy: 2400, effect: '対象を身代わり状態にし他のモンスターが優先的に狙う（自分に当たると混乱）' },
     { name: '桃まんの杖',     counts: [4,5,6],   baseBuy: 2400, effect: 'モンスターを桃まんに変える' },
   ],
   pot: [
-    { name: 'やりすごしの壺', counts: [3,4,5],   baseBuy: 1100, effect: '中に入りターン経過でモンスターをやりすごす' },
+    { name: 'やりすごしの壺', counts: [3,4,5],   baseBuy: 1100, effect: '自分が壺の中に入りやりすごし状態になり、モンスターから狙われなくなる' },
     { name: '識別の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具を識別する' },
-    { name: 'ただの壺',       counts: [3,4,5],   baseBuy: 1100, effect: '道具を入れておける（開封不可）' },
-    { name: '変化の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具がランダムに変化する' },
-    { name: '保存の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '道具を保存できる（腹が減らない）' },
-    { name: '底抜けの壺',     counts: [2,3,4],   baseBuy: 1200, effect: '入れた道具が下の階に落ちる' },
-    { name: '倉庫の壺',       counts: [2,3,4,5], baseBuy: 1200, effect: '最寄りの倉庫に道具を送る' },
-    { name: '換金の壺',       counts: [3,4,5],   baseBuy: 1300, effect: '入れた道具をギタンに変換する' },
-    { name: '割れない壺',     counts: [3,4,5],   baseBuy: 1300, effect: '壊れない・投げても割れない' },
-    { name: '手封じの壺',     counts: [3,4,5],   baseBuy: 1300, effect: '入れると手が使えなくなる（罠）' },
-    { name: 'おはらいの壺',   counts: [2,3,4],   baseBuy: 1800, effect: '入れた道具の呪いを解く' },
+    { name: 'ただの壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具に特別な効果はない' },
+    { name: '変化の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具が別の道具に変化する' },
+    { name: '保存の壺',       counts: [3,4,5],   baseBuy: 1100, effect: '入れた道具を自由に取り出せる（容量分だけ持ち物を拡張できる）' },
+    { name: '底抜けの壺',     counts: [2,3,4],   baseBuy: 1200, effect: '入れた道具が消えてなくなる。割ると周囲に落とし穴の罠ができる' },
+    { name: '倉庫の壺',       counts: [2,3,4,5], baseBuy: 1200, effect: '入れた道具を宿場浜の倉庫に送る' },
+    { name: '換金の壺',       counts: [3,4,5],   baseBuy: 1300, effect: '入れた道具が売値に応じたギタンになる' },
+    { name: '割れない壺',     counts: [3,4,5],   baseBuy: 1300, effect: '投げ当てたり転んで落としても割れない' },
+    { name: '手封じの壺',     counts: [3,4,5],   baseBuy: 1300, effect: '手が壺から抜けなくなり手封じ状態になる（罠）' },
+    { name: 'おはらいの壺',   counts: [2,3,4],   baseBuy: 1800, effect: '入れた道具の呪いが解ける' },
     { name: '呪いの壺',       counts: [2,3,4],   baseBuy: 1800, effect: '入れた道具が呪われる（罠）' },
-    { name: '笑いの壺',       counts: [2,3],     baseBuy: 2200, effect: '投げると周囲のモンスターが笑い状態に' },
-    { name: '背中の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '背中に入れた道具が自動で使われる' },
-    { name: 'トドの壺',       counts: [3,4,5],   baseBuy: 2300, effect: '中からトドが現れ道具を盗む（罠）' },
-    { name: '水鉄砲の壺',     counts: [3,4,5],   baseBuy: 2300, effect: '水を飛ばす（ドラゴン系に有効）' },
-    { name: '魔物の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '開けるとモンスターが出現（罠）' },
-    { name: 'ビックリの壺',   counts: [3,4,5],   baseBuy: 2300, effect: '開けると驚きの効果が発動（罠）' },
-    { name: '合成の壺',       counts: [3,4],     baseBuy: 6300, effect: '入れた武器・盾を合成する' },
-    { name: '強化の壺',       counts: [2,3],     baseBuy: 10200, effect: '入れた武器・盾の強化値+1' },
-    { name: '弱化の壺',       counts: [2,3],     baseBuy: 10200, effect: '入れた武器・盾の強化値-1（罠）' },
+    { name: '笑いの壺',       counts: [2,3],     baseBuy: 2200, effect: '押すと正面の相手を笑い状態にする（笑って行動不能になる）' },
+    { name: '背中の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '押すとHPとちからが全回復し、悪い状態異常も回復する' },
+    { name: 'トドの壺',       counts: [3,4,5],   baseBuy: 2300, effect: '押すとぬすっトドが飛び出し、床に落ちている道具を拾って壺の中に戻る' },
+    { name: '水鉄砲の壺',     counts: [3,4,5],   baseBuy: 2300, effect: '押すと正面3マスまで水鉄砲を噴射する（ドラゴン系・水に弱い敵に有効）' },
+    { name: '魔物の壺',       counts: [3,4,5],   baseBuy: 2300, effect: '押すと容量の数だけモンスターが現れる（罠）' },
+    { name: 'ビックリの壺',   counts: [3,4,5],   baseBuy: 2300, effect: '割れた時にビックリするような何かが起こる' },
+    { name: '合成の壺',       counts: [3,4],     baseBuy: 6300, effect: '入れた武器・盾・腕輪を合成する' },
+    { name: '強化の壺',       counts: [2,3],     baseBuy: 10200, effect: 'フロアを移動するたびに中の武器・盾の強化値が上がり、杖の回数・矢・石・ギタンが増える' },
+    { name: '弱化の壺',       counts: [2,3],     baseBuy: 10200, effect: 'フロアを移動するたびに中の武器・盾の強化値が下がり、杖の回数・矢・石・ギタンが減る（罠）' },
   ],
   herb: [
     { name: '雑草',       buy: 10,   sell: 4,   effect: '食べても何も起こらない' },
-    { name: '薬草',       buy: 40,   sell: 10,  effect: 'HPを少し回復する' },
-    { name: '暴走の種',   buy: 50,   sell: 20,  effect: '投げると暴走状態にする' },
+    { name: '薬草',       buy: 40,   sell: 10,  effect: 'HPを少し回復する', hetero: true },
+    { name: '暴走の種',   buy: 50,   sell: 20,  effect: '投げると暴走状態にする', hetero: true },
     { name: '毒草',       buy: 50,   sell: 20,  effect: '食べると毒状態。投げると敵を毒にする' },
-    { name: '目つぶし草', buy: 70,   sell: 25,  effect: '食べると目つぶし状態。投げると敵を目つぶしにする' },
-    { name: 'パワーアップ草', buy: 70, sell: 25, effect: 'ちから+2' },
+    { name: '目つぶし草', buy: 70,   sell: 25,  effect: '食べると目つぶし状態。投げると敵を目つぶしにする', hetero: true },
+    { name: 'パワーアップ草', buy: 70, sell: 25, effect: '一時的に攻撃力が増加する' },
     { name: 'めぐすり草', buy: 70,   sell: 25,  effect: '壁の中や遠くまで見えるようになる' },
-    { name: '混乱草',     buy: 70,   sell: 25,  effect: '食べると混乱状態。投げると敵を混乱にする' },
+    { name: '混乱草',     buy: 70,   sell: 25,  effect: '食べると混乱状態。投げると敵を混乱にする', hetero: true },
     { name: 'すばやさ草', buy: 70,   sell: 25,  effect: '食べると行動速度が1段階上がる' },
-    { name: '睡眠草',     buy: 70,   sell: 25,  effect: '食べると睡眠状態。投げると敵を睡眠にする' },
-    { name: '弟切草',     buy: 80,   sell: 30,  effect: 'HPをかなり回復する' },
-    { name: 'くねくね草', buy: 100,  sell: 40,  effect: '食べるとくねくね状態になる' },
-    { name: '高飛び草',   buy: 100,  sell: 40,  effect: 'フロア内のどこかにワープする' },
-    { name: 'いやし草',   buy: 200,  sell: 80,  effect: '状態異常を全て治す' },
-    { name: '胃拡張の種', buy: 200,  sell: 80,  effect: '最大満腹度+25' },
-    { name: '胃縮小の種', buy: 200,  sell: 80,  effect: '最大満腹度-25（罠）' },
-    { name: 'かぐわし草', buy: 200,  sell: 80,  effect: '周囲のモンスターを引き寄せる' },
+    { name: '睡眠草',     buy: 70,   sell: 25,  effect: '食べると睡眠状態。投げると敵を睡眠にする', hetero: true },
+    { name: '弟切草',     buy: 80,   sell: 30,  effect: 'HP100回復。HP最大時は最大HP+2。混乱・まどわし状態を回復', hetero: true },
+    { name: 'くねくね草', buy: 100,  sell: 40,  effect: '飲むとレベル-1' },
+    { name: '高飛び草',   buy: 100,  sell: 40,  effect: 'フロア内のどこかにワープする', hetero: true },
+    { name: 'いやし草',   buy: 200,  sell: 80,  effect: 'HP200回復。HP最大時は最大HP+3。悪い状態異常を回復', hetero: true },
+    { name: '胃拡張の種', buy: 200,  sell: 80,  effect: '最大満腹度+5' },
+    { name: '胃縮小の種', buy: 200,  sell: 80,  effect: '最大満腹度-5（罠）' },
+    { name: 'かぐわし草', buy: 200,  sell: 80,  effect: '飲むと悪い状態異常が回復する' },
     { name: 'ドラゴン草', buy: 250,  sell: 100, effect: '正面に炎を吐く（遠距離攻撃）' },
     { name: '無敵草',     buy: 400,  sell: 160, effect: '一定ターン無敵になる' },
     { name: '復活の草',   buy: 400,  sell: 160, effect: '一度だけ死から復活する' },
-    { name: '不幸の種',   buy: 400,  sell: 160, effect: '投げるとモンスターのレベルを下げる' },
-    { name: '命の草',     buy: 500,  sell: 200, effect: '最大HP+10' },
+    { name: '不幸の種',   buy: 400,  sell: 160, effect: '飲むとレベル-3' },
+    { name: '命の草',     buy: 500,  sell: 200, effect: '最大HP+4。仲間に投げるとHP全回復', hetero: true },
     { name: '毒消し草',   buy: 600,  sell: 240, effect: '毒状態を解除する' },
-    { name: 'ちからの草', buy: 700,  sell: 280, effect: '最大ちから+3' },
-    { name: 'しあわせ草', buy: 1000, sell: 400, effect: '経験値を大量に獲得する' },
-    { name: '超不幸の種', buy: 2000, sell: 800, effect: '投げるとモンスターを大幅レベルダウンさせる' },
-    { name: '天使の種',   buy: 2000, sell: 800, effect: 'レベル+1する' },
+    { name: 'ちからの草', buy: 700,  sell: 280, effect: '最大ちから+1。ちからが下がっている時はちからを1回復' },
+    { name: 'しあわせ草', buy: 1000, sell: 400, effect: '飲むとレベル+1' },
+    { name: '超不幸の種', buy: 2000, sell: 800, effect: '飲むとレベル・HP・満腹度が1になる' },
+    { name: '天使の種',   buy: 2000, sell: 800, effect: '飲むとレベル+3' },
   ],
   bracelet: [
     { name: '痛恨の腕輪', buy: 1500, sell: 600, effect: '痛恨の一撃を受けやすくなる' },
@@ -531,15 +562,90 @@ const ITEMS = {
     { name: '混乱よけの腕輪', buy: 4000, sell: 1600, effect: '混乱を防ぐ' },
     { name: '裏道の腕輪', buy: 5000, sell: 2000, effect: '隠れた通路を発見できる' },
     { name: '回復の腕輪', buy: 5000, sell: 2000, effect: 'HP自然回復量増加。満腹度減少速度UP' },
-    { name: '錆よけの腕輪', buy: 5000, sell: 2000, effect: '強化値が下がらなくなる' },
+    { name: '錆よけの腕輪', buy: 5000, sell: 2000, effect: '武器・盾の強化値が下がらなくなる。印を消されるのも防ぐ' },
     { name: '透視の腕輪', buy: 5000, sell: 2000, effect: 'フロア内の生物と道具がマップに表示される' },
     { name: 'すれちがいの腕輪', buy: 5000, sell: 2000, effect: 'モンスターとすれ違い可能' },
     { name: '壁抜けの腕輪', buy: 6500, sell: 2600, effect: '壁の中を移動可能（毎ターンダメージあり）' },
     { name: '忍び足の腕輪', buy: 6500, sell: 2600, effect: '仮眠状態のモンスターを起こさなくなる' },
     { name: '毒消しの腕輪', buy: 6500, sell: 2600, effect: '毒でちからや行動速度が下がらない' },
     { name: '鑑定師の腕輪', buy: 7500, sell: 3000, effect: '未識別の道具が拾うだけで識別される' },
-    { name: '罠師の腕輪', buy: 7500, sell: 3000, effect: '罠が見える。罠を拾えて置き直せる' },
+    { name: '罠師の腕輪', buy: 7500, sell: 3000, effect: '罠が見える。罠を拾えて置き直せる。モンスターは罠にかかるが自分はかからない。罠で倒すと経験値増加' },
     { name: '百発百中の腕輪', buy: 15000, sell: 6000, effect: '投げた矢や道具が必中化' },
+  ],
+  weapon: [
+    { name: '木刀',         buy: 250,   sell: 100,  atk: 3,  seals: 7,  effect: '' },
+    { name: '青銅の太刀',   buy: 550,   sell: 220,  atk: 4,  seals: 6,  effect: '' },
+    { name: '木づち',       buy: 1000,  sell: 400,  atk: 7,  seals: 3,  effect: '罠壊し' },
+    { name: 'カタナ',       buy: 1000,  sell: 400,  atk: 5,  seals: 5,  effect: '' },
+    { name: 'つるはし',     buy: 1000,  sell: 400,  atk: 8,  seals: 1,  effect: '壁堀り' },
+    { name: 'かつおぶし',   buy: 1800,  sell: 720,  atk: 6,  seals: 6,  effect: '仲間の満腹度を回復' },
+    { name: 'どうたぬき',   buy: 2200,  sell: 880,  atk: 8,  seals: 4,  effect: '' },
+    { name: '金の剣',       buy: 3000,  sell: 1200, atk: 3,  seals: 10, effect: 'サビよけ（強化値が下がらない）' },
+    { name: '使い捨て刀',   buy: 3000,  sell: 1200, atk: 30, seals: 10, effect: '攻撃するたびに強化値-1（劣化）' },
+    { name: '斬鉄剣',       buy: 3100,  sell: 1240, atk: 6,  seals: 5,  effect: '金属系モンスターに特攻' },
+    { name: '一ツ目殺し',   buy: 3200,  sell: 1280, atk: 7,  seals: 4,  effect: '一ツ目系モンスターに特攻' },
+    { name: '水斬りの剣',   buy: 3300,  sell: 1320, atk: 6,  seals: 6,  effect: '水棲系モンスターに特攻' },
+    { name: '三日月刀',     buy: 3500,  sell: 1400, atk: 6,  seals: 6,  effect: '爆発系モンスターに特攻' },
+    { name: 'ドレインバスター', buy: 3600, sell: 1440, atk: 6, seals: 3, effect: 'ドレイン系モンスターに特攻' },
+    { name: '空の刃',       buy: 3700,  sell: 1480, atk: 4,  seals: 4,  effect: '浮遊系モンスターに特攻' },
+    { name: '山姥包丁',     buy: 4000,  sell: 1600, atk: 10, seals: 7,  effect: '呪われている時にちから+5' },
+    { name: 'ドラゴンキラー', buy: 4000, sell: 1600, atk: 9,  seals: 5,  effect: 'ドラゴン系モンスターに特攻' },
+    { name: '巨大ハリセン', buy: 4200,  sell: 1680, atk: 5,  seals: 4,  effect: '攻撃した相手を1マス吹き飛ばす' },
+    { name: '成仏のカマ',   buy: 4200,  sell: 1680, atk: 5,  seals: 8,  effect: 'ゴースト系モンスターに特攻' },
+    { name: '回復の剣',     buy: 4300,  sell: 1720, atk: 2,  seals: 4,  effect: '攻撃時に与ダメージの半分HP回復' },
+    { name: '罠探りの棒',   buy: 4400,  sell: 1760, atk: 4,  seals: 5,  effect: '移動中に罠を自動感知' },
+    { name: '桃まん棒',     buy: 4500,  sell: 1800, atk: 4,  seals: 3,  effect: '倒したモンスターを桃まんにする' },
+    { name: '原始の斧',     buy: 5000,  sell: 2000, atk: 6,  seals: 8,  effect: 'ケモノ系モンスターに特攻' },
+    { name: '鉄塊の大剣',   buy: 5300,  sell: 2120, atk: 9,  seals: 3,  effect: '満腹度に応じて攻撃力上昇' },
+    { name: 'ステーキナイフ', buy: 5400, sell: 2160, atk: 7,  seals: 5,  effect: '空腹時に攻撃力が大幅上昇' },
+    { name: '剛剣マンジカブラ', buy: 5500, sell: 2200, atk: 14, seals: 3, effect: '' },
+    { name: 'スパークソード', buy: 5500, sell: 2200, atk: 4,  seals: 6,  effect: '空振りするたびに溜まり会心率UP' },
+    { name: '四ツ叉',       buy: 5600,  sell: 2240, atk: 6,  seals: 4,  effect: '4回溜めると会心の一撃' },
+    { name: 'めでたい熊手', buy: 5700,  sell: 2280, atk: 7,  seals: 7,  effect: '強化値が7の倍数の時に会心の一撃' },
+    { name: '金食い虫こん棒', buy: 6000, sell: 2400, atk: 8,  seals: 4,  effect: '攻撃時に相手のギタンを奪う' },
+    { name: 'ミノタウロスの斧', buy: 6500, sell: 2600, atk: 6, seals: 4, effect: '会心の一撃が出やすい' },
+    { name: '妖刀かまいたち', buy: 8400, sell: 3360, atk: 2,  seals: 6,  effect: '斜め前2方向にも同時攻撃' },
+    { name: '連撃刀',       buy: 10000, sell: 4000, atk: 5,  seals: 3,  effect: '1ターンに最大3回連続攻撃' },
+    { name: '最強ハンマー', buy: 15000, sell: 6000, atk: 2,  seals: 5,  effect: '罠を無限に壊せる' },
+    { name: '火迅風魔刀',   buy: 16000, sell: 6400, atk: 30, seals: 10, effect: '正面に炎を吐く（遠距離攻撃）' },
+    { name: '黄金のつるはし', buy: 18000, sell: 7200, atk: 2, seals: 10, effect: '壁を無限に掘り進める' },
+    { name: '必中の剣',     buy: 20000, sell: 8000, atk: 1,  seals: 3,  effect: '通常攻撃が必ず命中する' },
+    { name: '秘剣カブラステギ', buy: 25000, sell: 10000, atk: 50, seals: 15, effect: '' },
+  ],
+  shield: [
+    { name: '木甲の盾',     buy: 500,   sell: 200,  def: 3,  seals: 7,  effect: '' },
+    { name: '青銅甲の盾',   buy: 800,   sell: 320,  def: 4,  seals: 6,  effect: '' },
+    { name: '鉄甲の盾',     buy: 1200,  sell: 480,  def: 6,  seals: 5,  effect: '' },
+    { name: 'おにおおかみ',  buy: 1500,  sell: 600,  def: 8,  seals: 4,  effect: '' },
+    { name: 'オトトの盾',   buy: 2000,  sell: 800,  def: 5,  seals: 6,  effect: '水に濡れない（防水）' },
+    { name: 'ハラモチの盾', buy: 2000,  sell: 800,  def: 2,  seals: 5,  effect: '満腹度の減りが遅くなる' },
+    { name: 'バトルカウンター', buy: 2200, sell: 880, def: 2, seals: 6,  effect: '受けたダメージの一部を反射' },
+    { name: 'ミノタウロスの盾', buy: 2500, sell: 1000, def: 7, seals: 5, effect: '痛恨の一撃を受けない' },
+    { name: '金の盾',       buy: 2500,  sell: 1000, def: 4,  seals: 10, effect: 'サビよけ（強化値が下がらない）' },
+    { name: '不動の盾',     buy: 2500,  sell: 1000, def: 6,  seals: 5,  effect: '吹き飛ばされない・弾かれない' },
+    { name: 'トドよけの盾', buy: 2600,  sell: 1040, def: 4,  seals: 5,  effect: 'ぬすっトドに道具を盗まれない' },
+    { name: 'ガマラよけの盾', buy: 2700, sell: 1080, def: 5,  seals: 6,  effect: 'ガマラにギタンを奪われない' },
+    { name: 'いたずらよけの盾', buy: 2800, sell: 1120, def: 6, seals: 3, effect: 'いたずら系モンスターの攻撃を無効化' },
+    { name: 'ドラゴンシールド', buy: 3000, sell: 1200, def: 7, seals: 5, effect: 'ドラゴン系の炎・ブレスを軽減' },
+    { name: 'ざぶとん',     buy: 3000,  sell: 1200, def: 7,  seals: 5,  effect: '転倒・吹き飛びダメージを軽減' },
+    { name: 'にぎりよけの盾', buy: 3600, sell: 1440, def: 3,  seals: 5,  effect: 'にぎり系モンスターの攻撃を無効化' },
+    { name: '爆発隠の盾',   buy: 3300,  sell: 1320, def: 6,  seals: 4,  effect: '爆発ダメージを軽減' },
+    { name: '見切りの盾',   buy: 4000,  sell: 1600, def: 1,  seals: 5,  effect: '敵の攻撃を見切り回避率UP' },
+    { name: 'ゲイズの盾',   buy: 4000,  sell: 1600, def: 3,  seals: 5,  effect: 'ゲイズ系の催眠を防ぐ' },
+    { name: 'カッパのお皿', buy: 5000,  sell: 2000, def: 4,  seals: 7,  effect: '投げ物を受け止めて拾える' },
+    { name: '絶好調の盾',   buy: 5000,  sell: 2000, def: 5,  seals: 3,  effect: '満腹度MAX時にダメージを大幅軽減' },
+    { name: '風魔の盾',     buy: 6000,  sell: 2400, def: 13, seals: 3,  effect: '' },
+    { name: '金食い虫の盾', buy: 6000,  sell: 2400, def: 8,  seals: 4,  effect: '受けたダメージ分、相手のギタンを奪う' },
+    { name: '魔法よけの盾', buy: 7500,  sell: 3000, def: 2,  seals: 3,  effect: '魔法弾を受け止めて無効化' },
+    { name: 'お告げの盾',   buy: 7000,  sell: 2800, def: 5,  seals: 5,  effect: '識別・呪い有無などをお告げする' },
+    { name: '鉄塊の大盾',   buy: 4400,  sell: 1760, def: 9,  seals: 3,  effect: '満腹度に応じて防御力上昇' },
+    { name: 'ステーキプレート', buy: 4500, sell: 1800, def: 7, seals: 5, effect: '空腹時に防御力が大幅上昇' },
+    { name: '根性の盾',     buy: 4600,  sell: 1840, def: 9,  seals: 4,  effect: '残りHP僅かの時にダメージを軽減' },
+    { name: '山姥の鍋ぶた', buy: 4100,  sell: 1640, def: 10, seals: 7,  effect: '呪われている時に防御力+5' },
+    { name: '使い捨ての盾', buy: 3400,  sell: 1360, def: 30, seals: 10, effect: 'ダメージを受けるたびに強化値-1（劣化）' },
+    { name: 'めでたい御守', buy: 5500,  sell: 2200, def: 7,  seals: 7,  effect: '強化値が7の倍数の時にダメージ軽減' },
+    { name: 'サトリの盾',   buy: 10000, sell: 4000, def: 3,  seals: 6,  effect: '受けたダメージと同じ経験値を取得' },
+    { name: '螺旋風魔の盾', buy: 15000, sell: 6000, def: 30, seals: 15, effect: '' },
   ],
 };
 
@@ -560,14 +666,14 @@ function getMaxBuy(item) {
 
 // State
 let state = loadState();
-let currentTab = 'scroll';
+let currentTab = 'herb';
 let priceFilter = null;
 let selectedPrices = new Set();
 let selectedSellPrices = new Set();
 let countFilter = null;
 
 function loadState() {
-  const defaults = { scroll: {}, staff: {}, pot: {}, bracelet: {}, herb: {} };
+  const defaults = { scroll: {}, staff: {}, pot: {}, bracelet: {}, herb: {}, weapon: {}, shield: {} };
   try {
     const saved = localStorage.getItem('shiren6-id-state');
     if (saved) return Object.assign(defaults, JSON.parse(saved));
@@ -587,7 +693,7 @@ function cycleStatus(cat, name) {
 
 function resetRun() {
   if (!confirm('今回の冒険の識別状態をリセットしますか？')) return;
-  state = { scroll: {}, staff: {}, pot: {}, bracelet: {} };
+  state = { scroll: {}, staff: {}, pot: {}, bracelet: {}, herb: {}, weapon: {}, shield: {} };
   saveState();
   render();
 }
@@ -679,16 +785,26 @@ function renderChips() {
   const buyPrices  = [...buyPricesSet].sort((a, b) => a - b);
   const sellPrices = [...sellPricesSet].sort((a, b) => a - b);
 
-  document.getElementById('chipRowBuy').innerHTML =
-    '<span class="chip-label">買値:</span>' +
-    buyPrices.map(p =>
-      `<span class="price-chip buy${selectedPrices.has(p) ? ' active buy' : ''}" onclick="toggleChip(${p},'buy')">${p.toLocaleString()}G</span>`
-    ).join('');
-  document.getElementById('chipRowSell').innerHTML =
-    '<span class="chip-label">売値:</span>' +
-    sellPrices.map(p =>
-      `<span class="price-chip sell${selectedSellPrices.has(p) ? ' active sell' : ''}" onclick="toggleChip(${p},'sell')">${p.toLocaleString()}G</span>`
-    ).join('');
+  const isPriceChipHidden = currentTab === 'weapon' || currentTab === 'shield';
+  const buyRow  = document.getElementById('chipRowBuy');
+  const sellRow = document.getElementById('chipRowSell');
+  if (isPriceChipHidden) {
+    buyRow.style.display  = 'none';
+    sellRow.style.display = 'none';
+  } else {
+    buyRow.style.display  = 'flex';
+    sellRow.style.display = 'flex';
+    buyRow.innerHTML =
+      '<span class="chip-label">買値:</span>' +
+      buyPrices.map(p =>
+        `<span class="price-chip buy${selectedPrices.has(p) ? ' active buy' : ''}" onclick="toggleChip(${p},'buy')">${p.toLocaleString()}G</span>`
+      ).join('');
+    sellRow.innerHTML =
+      '<span class="chip-label">売値:</span>' +
+      sellPrices.map(p =>
+        `<span class="price-chip sell${selectedSellPrices.has(p) ? ' active sell' : ''}" onclick="toggleChip(${p},'sell')">${p.toLocaleString()}G</span>`
+      ).join('');
+  }
 }
 
 function statusIcon(s) { return s === 'identified' ? '✓' : s === 'absent' ? '✕' : '?'; }
@@ -820,10 +936,17 @@ function render() {
       return selectedPrices.has(item.buy) || selectedSellPrices.has(item.sell);
     })();
 
+    const statHtml = item.atk != null
+      ? `<div class="item-stat">攻撃力: ${item.atk} ／ 印数: ${item.seals}</div>`
+      : item.def != null
+        ? `<div class="item-stat">防御力: ${item.def} ／ 印数: ${item.seals}</div>`
+        : '';
+
     return `
       <div class="item-card ${status === 'identified' ? 'identified' : status === 'absent' ? 'absent' : ''} ${isHighlighted ? 'highlighted' : ''}">
         <div class="item-info">
-          <div class="item-name">${item.name}${item.target ? '<span class="target-badge">どれ</span>' : ''}</div>
+          <div class="item-name">${item.name}${item.target ? '<span class="target-badge">どれ</span>' : ''}${item.hetero ? '<span class="hetero-badge">異種合成</span>' : ''}</div>
+          ${statHtml}
           <div class="item-effect">${item.effect}</div>
           ${countHtml}
         </div>
@@ -870,9 +993,5 @@ function closeQR() {
   document.getElementById('qrModal').classList.remove('open');
 }
 </script>
-<footer style="text-align:center; padding:24px 0 16px; font-size:11px; color:#666; border-top:1px solid #2a3a5e; margin-top:20px;">
-  <a href="privacy.html" style="color:#a0a0b0; text-decoration:none;">プライバシーポリシー</a>
-  &nbsp;|&nbsp; 風来のシレン6 識別ツール（非公式）
-</footer>
 </body>
 </html>
