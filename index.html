@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>風来のシレン6 識別ツール</title>
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="シレン6識別">
+<link rel="manifest" href='data:application/manifest+json,{"name":"風来のシレン6 識別ツール","short_name":"シレン6識別","display":"standalone","background_color":"%231a1a2e","theme_color":"%231a1a2e","start_url":"."}'>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
@@ -259,6 +265,132 @@
     margin-top: 1px;
   }
 
+  /* ---- TIPS tab ---- */
+  .tips-panel { max-width: 900px; margin: 0 auto; padding: 12px; }
+  .tips-panel details {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .tips-panel summary {
+    cursor: pointer;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--accent2);
+    user-select: none;
+    list-style: none;
+  }
+  .tips-panel summary::before { content: '▸ '; }
+  .tips-panel details[open] summary::before { content: '▾ '; }
+  .tips-panel summary:hover { background: rgba(245,166,35,0.06); }
+  .tips-body { padding: 0 16px 14px; font-size: 13px; line-height: 1.8; color: var(--text); }
+  .tips-body h4 { color: var(--teal); font-size: 13px; margin: 12px 0 4px; }
+  .tips-body ul { padding-left: 18px; margin: 4px 0; }
+  .tips-body li { margin: 3px 0; }
+  .tips-body .warn { color: #ff8a80; }
+  .tips-body .good { color: #81c784; }
+  .tips-body table { border-collapse: collapse; margin: 6px 0; width: 100%; font-size: 12px; }
+  .tips-body th, .tips-body td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+  .tips-body th { background: var(--bg3); color: var(--accent2); white-space: nowrap; }
+  .tips-src { font-size: 11px; color: var(--text2); margin-top: 10px; }
+  .tips-src a { color: var(--blue); }
+
+  /* ---- Boyoyon simulator tab ---- */
+  .boyo-panel { max-width: 900px; margin: 0 auto; padding: 12px; }
+  .boyo-controls {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .boyo-controls label { color: var(--text2); font-size: 12px; }
+  .boyo-stepper { display: inline-flex; align-items: center; gap: 6px; }
+  .boyo-stepper button {
+    width: 28px; height: 28px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+    cursor: pointer; font-size: 15px; font-family: inherit;
+  }
+  .boyo-stepper button:hover { border-color: var(--accent2); }
+  .boyo-stepper .val { min-width: 24px; text-align: center; font-weight: bold; color: var(--accent2); }
+  .boyo-msg {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 10px; font-size: 13px; line-height: 1.7;
+  }
+  .boyo-msg .ok { color: #81c784; font-weight: bold; }
+  .boyo-msg .ng { color: #ff8a80; font-weight: bold; }
+  .boyo-dirs { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .boyo-dir-btn {
+    padding: 5px 12px; border-radius: 14px; cursor: pointer; font-size: 12px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+  }
+  .boyo-dir-btn.ok { border-color: #10b981; color: #6ee7b7; }
+  .boyo-dir-btn.ng { opacity: 0.45; cursor: default; }
+  .boyo-dir-btn.selected { background: rgba(16,185,129,0.25); font-weight: bold; }
+  .boyo-grid-wrap { overflow-x: auto; padding-bottom: 8px; }
+  .boyo-grid { border-collapse: collapse; margin: 0 auto; }
+  .boyo-grid td {
+    width: 34px; height: 34px; min-width: 34px;
+    border: 1px solid var(--bg);
+    text-align: center; vertical-align: middle;
+    font-size: 11px; position: relative;
+    background: var(--bg2);
+    cursor: default;
+  }
+  .boyo-grid td.wall { background: #1565c0; box-shadow: inset 0 0 6px rgba(120,190,255,0.55); }
+  .boyo-grid td.floor { background: #2b2b3f; cursor: pointer; }
+  .boyo-grid td.floor:hover { outline: 2px solid var(--accent2); outline-offset: -2px; }
+  .boyo-grid td.viable { background: #1d4030; }
+  .boyo-grid td.viable-feet { background: #1d4030; }
+  .boyo-grid td.viable-feet::after {
+    content: '★'; position: absolute; top: 0; right: 2px;
+    font-size: 9px; color: #ffd54f;
+  }
+  .boyo-grid td.shiren { background: #7b3f00; }
+  .boyo-grid td .pathnum {
+    display: inline-block; font-size: 10px; font-weight: bold; color: #a5d6ff;
+  }
+  .boyo-grid td.on-path { box-shadow: inset 0 0 0 2px rgba(79,195,247,0.6); }
+  .boyo-grid td.landing { box-shadow: inset 0 0 0 2px #ffd54f; }
+  .boyo-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11px; color: var(--text2); margin: 8px 0; justify-content: center; }
+  .boyo-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .boyo-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+  .boyo-note { font-size: 12px; color: var(--text2); line-height: 1.8; margin-top: 12px; }
+  .boyo-note li { margin: 2px 0; }
+
+  footer {
+    max-width: 900px; margin: 24px auto 16px; padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--text2); text-align: center; line-height: 1.8;
+  }
+  footer a { color: var(--blue); }
+
+  /* ---- スマホ最適化 ---- */
+  @media (max-width: 600px) {
+    body { font-size: 13px; }
+    header { padding: 10px 12px; }
+    header h1 { font-size: 14px; }
+    header .subtitle { font-size: 10px; }
+    .filter-bar { padding: 8px 10px; gap: 6px; }
+    .filter-bar input { width: 84px; font-size: 12px; padding: 4px 8px; }
+    .filter-bar input#nameFilter { width: 100px !important; }
+    .chip-bar { padding: 4px 10px 8px; }
+    .price-chip { padding: 3px 8px; font-size: 11px; }
+    .tab { padding: 9px 12px; font-size: 12px; }
+    .content { padding: 6px 6px; }
+    .section-header, .item-card { grid-template-columns: 1fr 92px 36px; gap: 6px; }
+    .item-card { padding: 7px 8px; }
+    .item-name { font-size: 12px; white-space: normal; }
+    .item-effect { font-size: 10px; }
+    .price-buy { font-size: 12px; }
+    .price-sell { font-size: 10px; }
+    .boyo-grid td { width: 26px; height: 26px; min-width: 26px; font-size: 9px; }
+    .boyo-controls { gap: 10px; padding: 8px 10px; }
+    .tips-body { font-size: 12px; padding: 0 12px 12px; }
+  }
+
   .item-info { min-width: 0; }
   .item-name {
     font-size: 13px;
@@ -357,7 +489,7 @@
 <header>
   <div>
     <h1>⚔ 風来のシレン6 識別ツール</h1>
-    <div class="subtitle">巻物・杖・壺・腕輪の識別管理</div>
+    <div class="subtitle">草・巻物・杖・壺・腕輪・武器・盾の識別管理＋攻略ツール</div>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
     <button class="btn-qr" onclick="showQR()">QR</button>
@@ -377,6 +509,8 @@
 <div class="filter-bar">
   <label>買値で絞り込み:</label>
   <input type="number" id="priceFilter" placeholder="例: 1000" oninput="applyFilterInput()" />
+  <label>名前で検索:</label>
+  <input type="text" id="nameFilter" placeholder="例: かなしばり" oninput="render()" style="width:120px" />
   <button class="filter-clear" onclick="clearFilter()">クリア</button>
   <span class="filter-count" id="filterCount"></span>
 </div>
@@ -397,10 +531,12 @@
   <div class="tabs tabs-row2">
     <div class="tab" onclick="switchTab('weapon')" id="tab-weapon">武器 <span class="badge" id="badge-weapon">0/0</span></div>
     <div class="tab" onclick="switchTab('shield')" id="tab-shield">盾 <span class="badge" id="badge-shield">0/0</span></div>
+    <div class="tab" onclick="switchTab('tips')" id="tab-tips">識別TIPS</div>
+    <div class="tab" onclick="switchTab('boyo')" id="tab-boyo">ボヨヨン増殖</div>
   </div>
 </div>
 
-<div class="content">
+<div class="content" id="mainContent">
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="border-color:#555"></div>未識別</div>
     <div class="legend-item"><div class="legend-dot" style="border-color:#4caf50"></div>識別済み</div>
@@ -415,6 +551,236 @@
   <div class="item-list" id="itemList"></div>
   <div class="no-results" id="noResults" style="display:none">一致するアイテムが見つかりません</div>
 </div>
+
+<div class="tips-panel" id="tipsPanel" style="display:none">
+  <details open>
+    <summary>識別手段の基本方針</summary>
+    <div class="tips-body">
+      <ul>
+        <li><b>漢識別（使用識別）</b>：とりあえず使って結果から推測。武器・盾・巻物・草・お香・押す壺はそのまま識別状態になる。<span class="warn">デメリット効果のリスクがあるため、フロアの用事を済ませて階段の上で行うのが理想</span>。</li>
+        <li><b>値段識別</b>：店やナゾーさんで値段を調べて絞り込む。ノーリスクで手持ち全てを調べられる。買値を名前につけておくと便利（売値×2.5＝買値）。</li>
+        <li><b>識別の巻物</b>：万能の確定識別。ラッキーで壺の外の持ち物が全識別。<span class="good">祝福された識別の巻物は確定でラッキー発生</span>。腕輪・壺への使用優先度が高い。</li>
+        <li><b>識別の壺</b>：複数識別できるが、取り出すまで使用不可・壺とお香は識別不可。</li>
+        <li><b>特製おにぎり</b>：効果の1つ「拾い識別状態」を引けば床置き→拾い直しで全識別。HP満タン・腹減らず・しのび足状態で食べると発生率UP。</li>
+        <li><b>鑑定師の腕輪</b>：拾うだけで識別される最強手段（超レア）。</li>
+        <li><b>マゼルン・合成識別</b>：未識別装備同士を合成すると合成後は識別状態に。材料に識別済みが1つでもあれば呪いの有無も判明。</li>
+        <li><b>店の商品で漢識別</b>：杖・壺は（基本価格＋回数×増量価格）なので、使った回数分だけ払えば安く済む。<span class="warn">場所がえ・感電・水鉄砲は店で事故のもと</span>。</li>
+      </ul>
+      <h4>値段識別の基礎知識</h4>
+      <ul>
+        <li>呪われたアイテムは買値・売値が<b>13%引き</b>（端数切下げ）→ 端数の値段は呪いのサイン（例: 1305/522、3045/1218の腕輪は垂れ流し系）。</li>
+        <li>祝福されたアイテム（草・巻物）は値段<b>2倍</b>。<span class="warn">100Gの草が祝福で200Gに見えることがあるため、店内での軽率な漢識別は泥棒事故のもと</span>。</li>
+        <li>店内では持ち物の説明文右上に売値が表示される。</li>
+        <li>食料は最初から全て識別済み。雑草・脱出/白紙/ぬれた巻物も識別済み。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>腕輪の識別チャート</summary>
+    <div class="tips-body">
+      <p><span class="warn">垂れ流し・金垂れ流し・胃縮小の腕輪は確定で呪われている</span>。1500Gの店売り腕輪は高飛び・爆発の可能性があるため試着厳禁。</p>
+      <h4>装備した瞬間に分かる</h4>
+      <ul>
+        <li>ちからが増えた → ちからの腕輪</li>
+        <li>最大満腹度が増えた/減った → 胃拡張/胃縮小の腕輪</li>
+        <li>敵の位置が分かる → 気配察知 ／ 道具の位置 → 道具感知 ／ 両方 → 透視の腕輪</li>
+      </ul>
+      <h4>ターン経過で分かる</h4>
+      <ul>
+        <li>毎ターン経験値+1 → しあわせの腕輪</li>
+        <li>回復と腹減りが早い → 回復の腕輪</li>
+        <li>ワープした → 高飛び ／ 爆発した → 爆発の腕輪</li>
+        <li>アイテム/ギタンを落とした → 垂れ流し/金垂れ流しの腕輪</li>
+      </ul>
+      <h4>投げる・撃つと分かる</h4>
+      <ul>
+        <li>壁を抜けた → 遠投 ／ 反射した → ボヨヨン ／ 2連射 → 連射</li>
+        <li>必ず外れる → ヘタ投げ ／ 必ず当たる → 百発百中</li>
+      </ul>
+      <h4>特定の行動で分かる</h4>
+      <ul>
+        <li>壁に入れた → 壁抜け ／ 水上を歩けた → 水グモ ／ 水も穴も罠無効 → 浮遊</li>
+        <li>会心も痛恨も出る → 諸刃 ／ 痛恨だけ受ける → 痛恨の腕輪</li>
+        <li>敵と位置が入れ替わる → すれちがい ／ 仮眠敵が起きない → 忍び足</li>
+        <li>拾ったら識別された → 鑑定師の腕輪</li>
+      </ul>
+      <h4>識別が難しいもの</h4>
+      <ul>
+        <li>混乱/睡眠/呪い/毒を打ち消した → 各よけ系腕輪</li>
+        <li>錆びず印消しも受けない → 錆よけ ／ 弾かれない → 弾きよけ</li>
+        <li>大砲の威力UP → 大砲強化 ／ 隣接だけで隠し壁が壊れた → 裏道の腕輪</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>杖の識別チャート（振って確認）</summary>
+    <div class="tips-body">
+      <p>モンスターに振ればほぼ判別可能。<span class="warn">2マス以上離れて振る（幸せ・感電・土塊・飛びつき対策）／複数の敵がいる時・バッター種相手は避ける</span>。</p>
+      <h4>ダメージ量で分かる</h4>
+      <ul>
+        <li>25ダメージ → 感電の杖</li>
+        <li>10ダメージ → トンネルの杖</li>
+        <li>5ダメージ → 吹き飛ばしの杖（壁際の敵）</li>
+        <li>2ダメージ → 土塊の杖（隣接した敵）</li>
+      </ul>
+      <h4>状態異常で分かる</h4>
+      <ul>
+        <li>鈍足になった → 鈍足の杖 or ガイコツまどうの杖（複数回で確認）</li>
+        <li>かなしばり → かなしばりの杖 ／ 封印 → 封印の杖 ／ 身代わり → 身代わりの杖</li>
+        <li>ワープ後かなしばり → 一時しのぎの杖 ／ 加速した → 加速の杖</li>
+      </ul>
+      <h4>移動・変化で分かる</h4>
+      <ul>
+        <li>敵が吹き飛んだ → 吹き飛ばし ／ 位置が入れ替わった → 場所がえ</li>
+        <li>着弾点まで自分が移動 → 飛びつき ／ 階段方向に弾が飛んだ → 導き</li>
+        <li>レベルUP → 幸せ ／ レベルDOWN（またはメッセージ） → 不幸 ／ 桃まん化 → 桃まんの杖</li>
+      </ul>
+      <h4>すぐ分からないもの</h4>
+      <ul>
+        <li>被ダメージ時に相手も同ダメージ → 痛み分けの杖</li>
+        <li>転倒時に発動 → 転ばぬ先の杖</li>
+        <li>壁に振って「重くて動かない」→ 飛びつき ／ 何も出ない → 場所がえ（ドスコイ状態時）</li>
+        <li>どれでもない → ただの杖</li>
+      </ul>
+      <h4>値段でも絞れる</h4>
+      <ul>
+        <li>買値1400G以上 → 痛み分け・一時しのぎ・幸せ・不幸・ガイコツまどう</li>
+        <li>買値2400G以上 → 身代わり・桃まん</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>巻物の識別のコツ</summary>
+    <div class="tips-body">
+      <ul>
+        <li>読めば識別されるので漢識別が基本。<span class="warn">マイナス枠：くちなし・拾えず・罠・敵加速・迷子・生物集合・バクチ・魔物部屋</span>。フロア巡回を終えて階段の上で読むこと。</li>
+        <li>「どれに使う？」と聞かれたら → 呪い・銀封印・印消し・おにぎり・識別・おはらい・天/地の恵み・メッキ・銀はがし・印/壺増大・吸い出しのどれか。<span class="warn">おにぎり対策に不要装備を選ぶのが安全</span>。</li>
+        <li>目安：銀封印300G／印消し・おにぎり400G／呪い1000G。</li>
+        <li>聖域の巻物は置くと広がるので読む前に置いて確認（置くだけでは未識別のまま）。</li>
+        <li>白紙の巻物は「書く」を選ぶだけで呪い・祝福が判明。</li>
+        <li>全滅(3000G)とねだやし(10000G)は値段で確定。</li>
+        <li><span class="warn">店売りの魔物部屋の巻物を店内で読むとワープ→強制泥棒になる</span>。1000Gの巻物は買ってから読むこと。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>草・種の識別（飲む／投げる）</summary>
+    <div class="tips-body">
+      <p>飲めば識別される（投げ当てでは識別されない）。<span class="good">回復草は最大HP上昇があるためHP満タンで飲むとお得</span>。</p>
+      <h4>敵に投げた時の反応で推測（メモ→後から名付け）</h4>
+      <ul>
+        <li>HP25回復 → 薬草 ／ 100回復 → 弟切草 ／ 200回復+状態回復 → いやし草 ／ 全回復 → 命の草</li>
+        <li>攻撃力が上がった → ちからの草（短い効果音）or パワーアップ草（長い効果音）</li>
+        <li>草エフェクト後に2ダメージ → 胃拡張/胃縮小の種・毒消し草</li>
+        <li>バシッと当たって2ダメージ → 復活の草 or 呪われた草（要注意）</li>
+        <li>毒サソリ種に50ダメージ → 毒消し草 ／ おばけ大根種の攻撃UP → 毒草</li>
+        <li>ゴースト系には回復草がダメージになる（命の草は残りHP分）</li>
+      </ul>
+      <h4>レベリング活用</h4>
+      <p>混乱草・暴走の種・目つぶし草は「あなぐらマムル」等に投げてレベルアップさせ、経験値稼ぎに使える（序盤限定の小技）。</p>
+      <p>毒消し草(600G)とちからの草(700G)は値段一択なので確定識別可能。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>壺の識別チャート（容量で絞る）</summary>
+    <div class="tips-body">
+      <p><span class="warn">押す壺の漢識別は次フロアの階段上で（魔物の壺対策）。店内で水鉄砲・トドは事故のもと</span>。</p>
+      <h4>押せる壺</h4>
+      <ul>
+        <li>容量2 → 笑いの壺で確定</li>
+        <li>容量3以上 → 押して識別</li>
+      </ul>
+      <h4>入れる壺の判別フロー</h4>
+      <ul>
+        <li>「入れる」でやり過ごし状態に → やりすごしの壺（呪われていても「入れられなかった」で判別可）</li>
+        <li><b>容量2</b>（弱化・強化・おはらい・呪い・倉庫・底抜け）→ 不要な識別済み装備を入れる：
+          <ul>
+            <li>消えた→店外で割って落とし穴が出れば底抜け、何もなければ倉庫</li>
+            <li>呪われた→呪いの壺 ／ ？が消えた・解呪された→おはらいの壺</li>
+            <li>変化なし→次フロアで強化⇔弱化を確認</li>
+          </ul>
+        </li>
+        <li><b>容量5</b>（保存・識別・変化・換金・手封じ・倉庫・ただ・割れない）→ 不要品を入れる：
+          <ul>
+            <li>取り出せる→保存 ／ 識別された→識別 ／ 変わった→変化 ／ ギタン化→換金</li>
+            <li>手封じ状態→手封じ ／ 消えた→倉庫</li>
+            <li>何も起きない→「ただの壺」と命名して壁に投げる。割れたらただの壺、割れなければ割れない壺</li>
+          </ul>
+        </li>
+        <li><b>容量3-4</b> → 同種アイテムが合成されたら合成の壺（値段でも一意に確定可能）</li>
+      </ul>
+      <p>基本価格1000G台の壺は「入れた物を失う or 手封じ」の要注意価格帯。</p>
+      <p><span class="good">強化の壺は使用済みの杖を入れるとフロア毎に回数が増えるので判別できる</span>。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>武器・盾・お香の識別</summary>
+    <div class="tips-body">
+      <h4>武器・盾</h4>
+      <ul>
+        <li>装備すれば強化値と呪いが判明。<span class="warn">呪い対策に、装備はずしの罠・おはらいの巻物がある時に試すこと</span>。</li>
+        <li>未識別のまま合成しても識別される（呪われる回数を減らせる）。</li>
+        <li>値段の下1桁が0以外 → ほぼ呪われている。</li>
+        <li>かつおぶしはかじると識別される。</li>
+        <li>旅仲間のアスカに装備を投げると識別される（呪い判別にも使える）。</li>
+      </ul>
+      <h4>お香</h4>
+      <ul>
+        <li>焚けば識別されるが値段が全て同じなので値段識別は不可。漢識別はフロア移動の直前に。</li>
+      </ul>
+      <div class="tips-src">出典: <a href="https://shiren6.game-info.wiki/d/%BC%B1%CA%CC%A5%C6%A5%AF%A5%CB%A5%C3%A5%AF" target="_blank" rel="noopener">風来のシレン6 とぐろ島探検録 Wiki - 識別テクニック</a></div>
+    </div>
+  </details>
+</div>
+
+<div class="boyo-panel" id="boyoPanel" style="display:none">
+  <div class="boyo-controls">
+    <div class="boyo-stepper">
+      <label>部屋の幅</label>
+      <button onclick="boyoResize('w',-1)">−</button>
+      <span class="val" id="boyoW">5</span>
+      <button onclick="boyoResize('w',1)">＋</button>
+    </div>
+    <div class="boyo-stepper">
+      <label>部屋の高さ</label>
+      <button onclick="boyoResize('h',-1)">−</button>
+      <span class="val" id="boyoH">5</span>
+      <button onclick="boyoResize('h',1)">＋</button>
+    </div>
+    <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。マスをタップしてシレンの立ち位置を選択</span>
+  </div>
+  <div class="boyo-msg" id="boyoMsg">緑のマス＝そこから斜め投げでアイテム増殖が可能な立ち位置です。マスをタップすると投げる方向と軌道を表示します。</div>
+  <div class="boyo-grid-wrap"><table class="boyo-grid" id="boyoGrid"></table></div>
+  <div class="boyo-legend">
+    <span><i style="background:#1d4030"></i>増殖可能な立ち位置</span>
+    <span style="color:#ffd54f">★ 足元キャッチあり（歩かず回収）</span>
+    <span><i style="background:#7b3f00"></i>シレン</span>
+    <span><i style="background:#1565c0"></i>ボヨヨン壁</span>
+    <span><i style="border:2px solid #ffd54f;width:9px;height:9px"></i>落下地点</span>
+  </div>
+  <div class="boyo-note">
+    <b>仕組みメモ</b>
+    <ul>
+      <li>斜めに投げたアイテムがボヨヨン壁の<b>上下左右4面すべて</b>で「く」の字反射すると増殖する。</li>
+      <li>反射後10マス以内に次の壁に当たらないとその場に落ちる（大部屋では不成立になりやすい）。</li>
+      <li>反射は最大24回まで。投擲物がシレンのマスに戻ると足元でキャッチする。</li>
+      <li>部屋の四隅に直撃した場合は反射せずその場に落ちる。</li>
+      <li><span style="color:#ff8a80">遠投状態では壁を貫通してしまうため増殖不可</span>。増殖成功後、壁は数回で壊れる。</li>
+    </ul>
+    <div class="tips-src">参考: <a href="https://ritvia.jp/works/bound_sim/" target="_blank" rel="noopener">ritvia ボヨヨン壁シミュレーター</a> ／ <a href="https://mogamoga1024.github.io/siren6/byyn.html" target="_blank" rel="noopener">簡単ボヨヨンチェッカー</a></div>
+  </div>
+</div>
+
+<footer>
+  本サイトは「風来のシレン6 とぐろ島探検録」の非公式ファンツールです。Spike Chunsoft Co., Ltd.とは関係ありません。<br>
+  <a href="privacy.html">プライバシーポリシー</a>
+</footer>
 
 <script>
 // items with counts: { name, counts[], baseBuy, effect }
@@ -702,6 +1068,17 @@ function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
+
+  const isSpecial = tab === 'tips' || tab === 'boyo';
+  document.querySelector('.filter-bar').style.display = isSpecial ? 'none' : 'flex';
+  document.getElementById('chipBar').style.display = isSpecial ? 'none' : 'flex';
+  document.getElementById('mainContent').style.display = isSpecial ? 'none' : 'block';
+  document.getElementById('tipsPanel').style.display = tab === 'tips' ? 'block' : 'none';
+  document.getElementById('boyoPanel').style.display = tab === 'boyo' ? 'block' : 'none';
+
+  if (tab === 'boyo') { boyoRender(); return; }
+  if (tab === 'tips') return;
+
   selectedPrices.clear();
   selectedSellPrices.clear();
   countFilter = null;
@@ -738,6 +1115,7 @@ function toggleCount(c) {
 
 function clearFilter() {
   document.getElementById('priceFilter').value = '';
+  document.getElementById('nameFilter').value = '';
   priceFilter = null;
   selectedPrices.clear();
   selectedSellPrices.clear();
@@ -815,6 +1193,7 @@ function statusLabel(s) {
 }
 
 function render() {
+  if (!ITEMS[currentTab]) return;
   const items = ITEMS[currentTab];
 
   // Update all badges
@@ -823,8 +1202,14 @@ function render() {
     document.getElementById('badge-' + cat).textContent = cnt + '/' + ITEMS[cat].length;
   });
 
-  // Apply count filter first
+  // Apply name filter
   let filtered = items;
+  const nameQuery = document.getElementById('nameFilter').value.trim();
+  if (nameQuery) {
+    filtered = filtered.filter(it => it.name.includes(nameQuery));
+  }
+
+  // Apply count filter
   if (countFilter !== null && hasCountItems()) {
     filtered = filtered.filter(it => it.counts && it.counts.includes(countFilter));
   }
@@ -872,7 +1257,8 @@ function render() {
 
   // Filter count label
   const anyFilter = (priceFilter !== null && !isNaN(priceFilter)) ||
-                    selectedPrices.size > 0 || selectedSellPrices.size > 0 || countFilter !== null;
+                    selectedPrices.size > 0 || selectedSellPrices.size > 0 || countFilter !== null ||
+                    nameQuery !== '';
   document.getElementById('filterCount').textContent = anyFilter ? `${filtered.length}件該当` : '';
 
   // Render items
@@ -964,6 +1350,185 @@ function render() {
 
 renderChips();
 render();
+
+// ================= ボヨヨン増殖シミュレーター =================
+// 反射仕様（既存ツールの検証結果に準拠）:
+// ・斜め投げのみ増殖可能。壁の平面に当たると「く」の字反射
+// ・上下左右4面すべてで反射すると増殖成功
+// ・反射後10マス以内に次の壁に当たらないとその場に落下
+// ・反射は最大24回。部屋の四隅直撃は反射せず落下
+// ・シレンのマスに戻ると足元でキャッチ
+let boyoW = 5, boyoH = 5;
+let boyoSel = null;   // {r, c}
+let boyoDir = null;   // 表示中の方向 index
+
+const BOYO_DIRS = [
+  { dr: -1, dc: -1, name: '左上' },
+  { dr: -1, dc:  1, name: '右上' },
+  { dr:  1, dc: -1, name: '左下' },
+  { dr:  1, dc:  1, name: '右下' },
+];
+
+function boyoSim(W, H, sr, sc, dr, dc) {
+  const faces = { top: false, bottom: false, left: false, right: false };
+  let r = sr, c = sc;
+  const path = [{ r, c }];
+  let bounces = 0, steps = 0;
+  for (;;) {
+    const nr = r + dr, nc = c + dc;
+    const wallR = nr < 0 || nr >= H;
+    const wallC = nc < 0 || nc >= W;
+    if (!wallR && !wallC) {
+      r = nr; c = nc;
+      path.push({ r, c });
+      if (++steps >= 10) {
+        return finish();  // 飛距離切れで落下
+      }
+    } else if (wallR && wallC) {
+      return finish();    // 四隅直撃 → その場に落下
+    } else {
+      if (bounces >= 24) return finish();  // 反射上限
+      if (wallR) {
+        if (dr > 0) faces.bottom = true; else faces.top = true;
+        dr = -dr;
+        r = nr + dr;      // 壁マスから1マス内側へ戻る
+        c = nc;           // 横は進んだ位置
+      } else {
+        if (dc > 0) faces.right = true; else faces.left = true;
+        dc = -dc;
+        c = nc + dc;
+        r = nr;
+      }
+      path.push({ r, c });
+      bounces++;
+      steps = 1;          // 反射の移動も1歩に数える
+    }
+    if (r === sr && c === sc) {
+      return finish(true);  // シレンのマスに戻った → キャッチ
+    }
+  }
+  function finish(caught = false) {
+    const ok = faces.top && faces.bottom && faces.left && faces.right;
+    return { success: ok, path, landing: path[path.length - 1], caught, bounces };
+  }
+}
+
+function boyoViable(r, c) {
+  // 各方向の結果を返す
+  return BOYO_DIRS.map(d => boyoSim(boyoW, boyoH, r, c, d.dr, d.dc));
+}
+
+function boyoResize(axis, delta) {
+  if (axis === 'w') boyoW = Math.min(12, Math.max(1, boyoW + delta));
+  else boyoH = Math.min(12, Math.max(1, boyoH + delta));
+  boyoSel = null; boyoDir = null;
+  boyoRender();
+}
+
+function boyoRender() {
+  document.getElementById('boyoW').textContent = boyoW;
+  document.getElementById('boyoH').textContent = boyoH;
+
+  // 表示中の軌道を計算
+  let pathMap = {};       // "r,c" -> 通過順の番号リスト
+  let landing = null;
+  let selResults = null;
+  if (boyoSel) {
+    selResults = boyoViable(boyoSel.r, boyoSel.c);
+    if (boyoDir !== null && selResults[boyoDir].success) {
+      const res = selResults[boyoDir];
+      res.path.forEach((p, i) => {
+        if (i === 0) return;
+        const key = p.r + ',' + p.c;
+        (pathMap[key] = pathMap[key] || []).push(i);
+      });
+      landing = res.landing;
+    }
+  }
+
+  // グリッド生成（壁1マス分を含む）
+  let html = '';
+  for (let r = -1; r <= boyoH; r++) {
+    html += '<tr>';
+    for (let c = -1; c <= boyoW; c++) {
+      const isWall = r < 0 || r >= boyoH || c < 0 || c >= boyoW;
+      if (isWall) { html += '<td class="wall"></td>'; continue; }
+      const results = boyoViable(r, c);
+      const anyOk = results.some(x => x.success);
+      const feetOk = results.some(x => x.success && x.caught);
+      let cls = 'floor';
+      if (boyoSel && boyoSel.r === r && boyoSel.c === c) cls += ' shiren';
+      else if (feetOk) cls += ' viable viable-feet';
+      else if (anyOk) cls += ' viable';
+      const key = r + ',' + c;
+      if (pathMap[key]) cls += ' on-path';
+      if (landing && landing.r === r && landing.c === c) cls += ' landing';
+      const label = boyoSel && boyoSel.r === r && boyoSel.c === c
+        ? '🚶'
+        : (pathMap[key] ? `<span class="pathnum">${pathMap[key].join(',')}</span>` : '');
+      html += `<td class="${cls}" onclick="boyoSelect(${r},${c})">${label}</td>`;
+    }
+    html += '</tr>';
+  }
+  document.getElementById('boyoGrid').innerHTML = html;
+
+  // メッセージ欄
+  const msg = document.getElementById('boyoMsg');
+  if (!boyoSel) {
+    const total = countViable();
+    msg.innerHTML = total > 0
+      ? `緑のマス（${total}ヶ所）から斜め投げで増殖できます。マスをタップすると方向と軌道を表示します。`
+      : `<span class="ng">この部屋サイズでは増殖できる立ち位置がありません。</span>サイズを変えてみてください。`;
+    return;
+  }
+  const okDirs = selResults.map((x, i) => ({ ...x, i })).filter(x => x.success);
+  let head;
+  if (okDirs.length === 0) {
+    head = `<span class="ng">この位置からは増殖できません。</span>緑のマスに移動してください。`;
+  } else if (boyoDir !== null && selResults[boyoDir].success) {
+    const res = selResults[boyoDir];
+    const landTxt = res.caught
+      ? '<span class="ok">足元でキャッチ（歩かず回収）</span>'
+      : `落下地点は黄色枠のマス`;
+    head = `<span class="ok">増殖成功！</span> ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回 → ${landTxt}`;
+  } else {
+    head = `<span class="ok">増殖可能。</span>方向を選んでください。`;
+  }
+  const dirBtns = BOYO_DIRS.map((d, i) => {
+    const ok = selResults[i].success;
+    const sel = boyoDir === i ? ' selected' : '';
+    const caught = ok && selResults[i].caught ? ' ★' : '';
+    return `<span class="boyo-dir-btn ${ok ? 'ok' : 'ng'}${sel}" ${ok ? `onclick="boyoPick(${i})"` : ''}>${d.name} ${ok ? '○' : '×'}${caught}</span>`;
+  }).join('');
+  msg.innerHTML = head + `<div class="boyo-dirs">${dirBtns}</div>`;
+}
+
+function countViable() {
+  let n = 0;
+  for (let r = 0; r < boyoH; r++)
+    for (let c = 0; c < boyoW; c++)
+      if (BOYO_DIRS.some(d => boyoSim(boyoW, boyoH, r, c, d.dr, d.dc).success)) n++;
+  return n;
+}
+
+function boyoSelect(r, c) {
+  if (boyoSel && boyoSel.r === r && boyoSel.c === c) {
+    boyoSel = null; boyoDir = null;
+  } else {
+    boyoSel = { r, c };
+    const results = boyoViable(r, c);
+    // 足元キャッチ優先で自動選択
+    let best = results.findIndex(x => x.success && x.caught);
+    if (best === -1) best = results.findIndex(x => x.success);
+    boyoDir = best === -1 ? null : best;
+  }
+  boyoRender();
+}
+
+function boyoPick(i) {
+  boyoDir = i;
+  boyoRender();
+}
 
 let qrGenerated = false;
 function showQR() {
