@@ -1377,8 +1377,22 @@ render();
 let boyoW = 5, boyoH = 5;
 let boyoSel = null;   // {r, c}
 let boyoDir = null;   // 表示中の方向 index
-let boyoWalls = new Set();  // 内側の壁マス "r,c" 形式
+let boyoWalls = new Set();  // 壁マス "r,c" 形式（外周リング含む）
 let boyoMode = 'edit';      // 'edit' | 'play'
+
+function boyoInitWalls() {
+  // 外周リング全マスを壁として初期化（内側は全床）
+  boyoWalls = new Set();
+  for (let c = -1; c <= boyoW; c++) {
+    boyoWalls.add(-1 + ',' + c);
+    boyoWalls.add(boyoH + ',' + c);
+  }
+  for (let r = -1; r <= boyoH; r++) {
+    boyoWalls.add(r + ',' + (-1));
+    boyoWalls.add(r + ',' + boyoW);
+  }
+}
+boyoInitWalls();
 
 const BOYO_DIRS = [
   { dr: -1, dc: -1, name: '左上' },
@@ -1460,16 +1474,7 @@ function boyoViable(r, c) {
 function boyoResize(axis, delta) {
   if (axis === 'w') boyoW = Math.min(12, Math.max(1, boyoW + delta));
   else boyoH = Math.min(12, Math.max(1, boyoH + delta));
-  // 外周リング全マスを壁として初期化（内側は全床）
-  boyoWalls = new Set();
-  for (let c = -1; c <= boyoW; c++) {
-    boyoWalls.add(-1 + ',' + c);
-    boyoWalls.add(boyoH + ',' + c);
-  }
-  for (let r = -1; r <= boyoH; r++) {
-    boyoWalls.add(r + ',' + (-1));
-    boyoWalls.add(r + ',' + boyoW);
-  }
+  boyoInitWalls();
   boyoSel = null; boyoDir = null;
   boyoRender();
 }
