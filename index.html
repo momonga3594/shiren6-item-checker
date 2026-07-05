@@ -307,6 +307,13 @@
     font-size: 13px;
   }
   .boyo-controls label { color: var(--text2); font-size: 12px; }
+  .boyo-mode-toggle { display: inline-flex; gap: 6px; }
+  .boyo-mode-btn {
+    padding: 6px 12px; border-radius: 14px; cursor: pointer; font-size: 12px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+    font-family: inherit;
+  }
+  .boyo-mode-btn.selected { background: rgba(16,185,129,0.25); border-color: #10b981; color: #6ee7b7; font-weight: bold; }
   .boyo-stepper { display: inline-flex; align-items: center; gap: 6px; }
   .boyo-stepper button {
     width: 28px; height: 28px; border-radius: 4px;
@@ -340,6 +347,8 @@
     cursor: default;
   }
   .boyo-grid td.wall { background: #1565c0; box-shadow: inset 0 0 6px rgba(120,190,255,0.55); }
+  .boyo-grid td.wall.editable { cursor: pointer; }
+  .boyo-grid td.wall.editable:hover { outline: 2px solid #ff8a80; outline-offset: -2px; }
   .boyo-grid td.floor { background: #2b2b3f; cursor: pointer; }
   .boyo-grid td.floor:hover { outline: 2px solid var(--accent2); outline-offset: -2px; }
   .boyo-grid td.viable { background: #1d4030; }
@@ -753,9 +762,13 @@
       <span class="val" id="boyoH">5</span>
       <button onclick="boyoResize('h',1)">＋</button>
     </div>
-    <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。マスをタップしてシレンの立ち位置を選択</span>
+    <div class="boyo-mode-toggle">
+      <span class="boyo-mode-btn" id="boyoModeEditBtn" onclick="boyoSetMode('edit')">壁を編集</span>
+      <span class="boyo-mode-btn" id="boyoModePlayBtn" onclick="boyoSetMode('play')">投げ位置を調べる</span>
+    </div>
+    <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。外周は固定のボヨヨン壁</span>
   </div>
-  <div class="boyo-msg" id="boyoMsg">緑のマス＝そこから斜め投げでアイテム増殖が可能な立ち位置です。マスをタップすると投げる方向と軌道を表示します。</div>
+  <div class="boyo-msg" id="boyoMsg"></div>
   <div class="boyo-grid-wrap"><table class="boyo-grid" id="boyoGrid"></table></div>
   <div class="boyo-legend">
     <span><i style="background:#1d4030"></i>増殖可能な立ち位置</span>
@@ -763,6 +776,7 @@
     <span><i style="background:#7b3f00"></i>シレン</span>
     <span><i style="background:#1565c0"></i>ボヨヨン壁</span>
     <span><i style="border:2px solid #ffd54f;width:9px;height:9px"></i>落下地点</span>
+    <span>タップで壁⇔床（編集モード）</span>
   </div>
   <div class="boyo-note">
     <b>仕組みメモ</b>
@@ -1361,6 +1375,8 @@ render();
 let boyoW = 5, boyoH = 5;
 let boyoSel = null;   // {r, c}
 let boyoDir = null;   // 表示中の方向 index
+let boyoWalls = new Set();  // 内側の壁マス "r,c" 形式
+let boyoMode = 'edit';      // 'edit' | 'play'
 
 const BOYO_DIRS = [
   { dr: -1, dc: -1, name: '左上' },
@@ -1369,37 +1385,50 @@ const BOYO_DIRS = [
   { dr:  1, dc:  1, name: '右下' },
 ];
 
-function boyoSim(W, H, sr, sc, dr, dc) {
+function boyoCellType(r, c) {
+  if (r < 0 || r >= boyoH || c < 0 || c >= boyoW) return 'wall';
+  if (boyoWalls.has(r + ',' + c)) return 'wall';
+  return 'floor';
+}
+
+function boyoSim(sr, sc, dr, dc) {
   const faces = { top: false, bottom: false, left: false, right: false };
   let r = sr, c = sc;
   const path = [{ r, c }];
   let bounces = 0, steps = 0;
   for (;;) {
     const nr = r + dr, nc = c + dc;
-    const wallR = nr < 0 || nr >= H;
-    const wallC = nc < 0 || nc >= W;
-    if (!wallR && !wallC) {
+    if (boyoCellType(nr, nc) === 'floor') {
       r = nr; c = nc;
       path.push({ r, c });
       if (++steps >= 10) {
         return finish();  // 飛距離切れで落下
       }
-    } else if (wallR && wallC) {
-      return finish();    // 四隅直撃 → その場に落下
     } else {
       if (bounces >= 24) return finish();  // 反射上限
-      if (wallR) {
+      const d = boyoCellType(nr, nc - dc);   // 水平方向の隣接
+      const p = boyoCellType(nr - dr, nc);   // 垂直方向の隣接
+      if (d === 'wall' && p === 'wall') {
+        return finish();  // 入り隅（凹角）直撃 → その場に落下
+      } else if (d === 'wall' && p === 'floor') {
+        // 横に壁が続く＝水平な壁面 → 垂直反射
         if (dr > 0) faces.bottom = true; else faces.top = true;
         dr = -dr;
         r = nr + dr;      // 壁マスから1マス内側へ戻る
         c = nc;           // 横は進んだ位置
-      } else {
+        path.push({ r, c });
+      } else if (d === 'floor' && p === 'wall') {
+        // 縦に壁が続く＝垂直な壁面 → 水平反射
         if (dc > 0) faces.right = true; else faces.left = true;
         dc = -dc;
         c = nc + dc;
         r = nr;
+        path.push({ r, c });
+      } else {
+        // 孤立した壁の凸角に直撃 → 来た方向へ跳ね返る（新規マスpushなし）
+        dr = -dr; dc = -dc;
+        r = nr + dr; c = nc + dc;
       }
-      path.push({ r, c });
       bounces++;
       steps = 1;          // 反射の移動も1歩に数える
     }
@@ -1414,20 +1443,54 @@ function boyoSim(W, H, sr, sc, dr, dc) {
 }
 
 function boyoViable(r, c) {
-  // 各方向の結果を返す
-  return BOYO_DIRS.map(d => boyoSim(boyoW, boyoH, r, c, d.dr, d.dc));
+  // 壁マスは常に非該当
+  if (boyoCellType(r, c) !== 'floor') {
+    return BOYO_DIRS.map(() => ({ success: false, path: [{ r, c }], landing: { r, c }, caught: false, bounces: 0 }));
+  }
+  return BOYO_DIRS.map(d => boyoSim(r, c, d.dr, d.dc));
 }
 
 function boyoResize(axis, delta) {
   if (axis === 'w') boyoW = Math.min(12, Math.max(1, boyoW + delta));
   else boyoH = Math.min(12, Math.max(1, boyoH + delta));
+  boyoWalls = new Set();
   boyoSel = null; boyoDir = null;
   boyoRender();
+}
+
+function boyoSetMode(mode) {
+  boyoMode = mode;
+  boyoRender();
+}
+
+function boyoToggleWall(r, c) {
+  const key = r + ',' + c;
+  if (boyoWalls.has(key)) {
+    boyoWalls.delete(key);
+  } else {
+    boyoWalls.add(key);
+    // シレンのいるマスが壁になった場合、選択をクリア
+    if (boyoSel && boyoSel.r === r && boyoSel.c === c) {
+      boyoSel = null; boyoDir = null;
+    }
+  }
+  boyoRender();
+}
+
+function boyoCellClick(r, c) {
+  if (boyoMode === 'edit') {
+    boyoToggleWall(r, c);
+  } else {
+    if (boyoCellType(r, c) !== 'floor') return; // 壁タップは無視
+    boyoSelect(r, c);
+  }
 }
 
 function boyoRender() {
   document.getElementById('boyoW').textContent = boyoW;
   document.getElementById('boyoH').textContent = boyoH;
+  document.getElementById('boyoModeEditBtn').classList.toggle('selected', boyoMode === 'edit');
+  document.getElementById('boyoModePlayBtn').classList.toggle('selected', boyoMode === 'play');
 
   // 表示中の軌道を計算
   let pathMap = {};       // "r,c" -> 通過順の番号リスト
@@ -1446,13 +1509,20 @@ function boyoRender() {
     }
   }
 
-  // グリッド生成（壁1マス分を含む）
+  // グリッド生成（外周含む全マス）
   let html = '';
   for (let r = -1; r <= boyoH; r++) {
     html += '<tr>';
     for (let c = -1; c <= boyoW; c++) {
-      const isWall = r < 0 || r >= boyoH || c < 0 || c >= boyoW;
-      if (isWall) { html += '<td class="wall"></td>'; continue; }
+      const outer = r < 0 || r >= boyoH || c < 0 || c >= boyoW;
+      const type = boyoCellType(r, c);
+      if (type === 'wall') {
+        const editable = !outer && boyoMode === 'edit';
+        const cls = editable ? 'wall editable' : 'wall';
+        const onclick = editable ? ` onclick="boyoCellClick(${r},${c})"` : '';
+        html += `<td class="${cls}"${onclick}></td>`;
+        continue;
+      }
       const results = boyoViable(r, c);
       const anyOk = results.some(x => x.success);
       const feetOk = results.some(x => x.success && x.caught);
@@ -1466,7 +1536,7 @@ function boyoRender() {
       const label = boyoSel && boyoSel.r === r && boyoSel.c === c
         ? '🚶'
         : (pathMap[key] ? `<span class="pathnum">${pathMap[key].join(',')}</span>` : '');
-      html += `<td class="${cls}" onclick="boyoSelect(${r},${c})">${label}</td>`;
+      html += `<td class="${cls}" onclick="boyoCellClick(${r},${c})">${label}</td>`;
     }
     html += '</tr>';
   }
@@ -1474,11 +1544,18 @@ function boyoRender() {
 
   // メッセージ欄
   const msg = document.getElementById('boyoMsg');
+  if (boyoMode === 'edit') {
+    const total = countViable();
+    msg.innerHTML = total > 0
+      ? `マスをタップして壁⇔床を切り替え。緑のマス（${total}ヶ所）は増殖可能な立ち位置です。形が決まったら「投げ位置を調べる」へ。`
+      : `マスをタップして壁⇔床を切り替え。<span class="ng">現在の形では増殖できる立ち位置がありません。</span>形が決まったら「投げ位置を調べる」へ。`;
+    return;
+  }
   if (!boyoSel) {
     const total = countViable();
     msg.innerHTML = total > 0
       ? `緑のマス（${total}ヶ所）から斜め投げで増殖できます。マスをタップすると方向と軌道を表示します。`
-      : `<span class="ng">この部屋サイズでは増殖できる立ち位置がありません。</span>サイズを変えてみてください。`;
+      : `<span class="ng">この部屋の形では増殖できる立ち位置がありません。</span>「壁を編集」で形を変えてみてください。`;
     return;
   }
   const okDirs = selResults.map((x, i) => ({ ...x, i })).filter(x => x.success);
@@ -1506,8 +1583,10 @@ function boyoRender() {
 function countViable() {
   let n = 0;
   for (let r = 0; r < boyoH; r++)
-    for (let c = 0; c < boyoW; c++)
-      if (BOYO_DIRS.some(d => boyoSim(boyoW, boyoH, r, c, d.dr, d.dc).success)) n++;
+    for (let c = 0; c < boyoW; c++) {
+      if (boyoCellType(r, c) !== 'floor') continue;
+      if (BOYO_DIRS.some(d => boyoSim(r, c, d.dr, d.dc).success)) n++;
+    }
   return n;
 }
 
