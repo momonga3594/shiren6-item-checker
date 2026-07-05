@@ -766,7 +766,7 @@
       <span class="boyo-mode-btn" id="boyoModeEditBtn" onclick="boyoSetMode('edit')">壁を編集</span>
       <span class="boyo-mode-btn" id="boyoModePlayBtn" onclick="boyoSetMode('play')">投げ位置を調べる</span>
     </div>
-    <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。外周は固定のボヨヨン壁</span>
+    <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。外周も含め全マス編集可能</span>
   </div>
   <div class="boyo-msg" id="boyoMsg"></div>
   <div class="boyo-grid-wrap"><table class="boyo-grid" id="boyoGrid"></table></div>
@@ -777,6 +777,7 @@
     <span><i style="background:#1565c0"></i>ボヨヨン壁</span>
     <span><i style="border:2px solid #ffd54f;width:9px;height:9px"></i>落下地点</span>
     <span>タップで壁⇔床（編集モード）</span>
+    <span>○⚠ = 増殖成功するが部屋の外へ飛び出す方向</span>
   </div>
   <div class="boyo-note">
     <b>仕組みメモ</b>
@@ -785,6 +786,7 @@
       <li>反射後10マス以内に次の壁に当たらないとその場に落ちる（大部屋では不成立になりやすい）。</li>
       <li>反射は最大24回まで。投擲物がシレンのマスに戻ると足元でキャッチする。</li>
       <li>部屋の四隅に直撃した場合は反射せずその場に落ちる。</li>
+      <li>外周も編集可能（出入口を再現）。<span style="color:#ff8a80">開口部から飛び出すと部屋の外に落ちる</span>（増殖自体は成立していても回収困難）。</li>
       <li><span style="color:#ff8a80">遠投状態では壁を貫通してしまうため増殖不可</span>。増殖成功後、壁は数回で壊れる。</li>
     </ul>
     <div class="tips-src">参考: <a href="https://ritvia.jp/works/bound_sim/" target="_blank" rel="noopener">ritvia ボヨヨン壁シミュレーター</a> ／ <a href="https://mogamoga1024.github.io/siren6/byyn.html" target="_blank" rel="noopener">簡単ボヨヨンチェッカー</a></div>
@@ -1386,7 +1388,8 @@ const BOYO_DIRS = [
 ];
 
 function boyoCellType(r, c) {
-  if (r < 0 || r >= boyoH || c < 0 || c >= boyoW) return 'wall';
+  // グリッド範囲外（表示リングよりさらに外）→ 部屋の外（開口部から飛び出す先）
+  if (r < -1 || r > boyoH || c < -1 || c > boyoW) return 'out';
   if (boyoWalls.has(r + ',' + c)) return 'wall';
   return 'floor';
 }
@@ -1398,7 +1401,11 @@ function boyoSim(sr, sc, dr, dc) {
   let bounces = 0, steps = 0;
   for (;;) {
     const nr = r + dr, nc = c + dc;
-    if (boyoCellType(nr, nc) === 'floor') {
+    const nType = boyoCellType(nr, nc);
+    if (nType === 'out') {
+      return finish(false, true);  // 開口部から部屋の外へ飛び出した → その場で飛行終了
+    }
+    if (nType === 'floor') {
       r = nr; c = nc;
       path.push({ r, c });
       if (++steps >= 10) {
@@ -1436,16 +1443,16 @@ function boyoSim(sr, sc, dr, dc) {
       return finish(true);  // シレンのマスに戻った → キャッチ
     }
   }
-  function finish(caught = false) {
+  function finish(caught = false, escaped = false) {
     const ok = faces.top && faces.bottom && faces.left && faces.right;
-    return { success: ok, path, landing: path[path.length - 1], caught, bounces };
+    return { success: ok, path, landing: escaped ? null : path[path.length - 1], caught, bounces, escaped };
   }
 }
 
 function boyoViable(r, c) {
   // 壁マスは常に非該当
   if (boyoCellType(r, c) !== 'floor') {
-    return BOYO_DIRS.map(() => ({ success: false, path: [{ r, c }], landing: { r, c }, caught: false, bounces: 0 }));
+    return BOYO_DIRS.map(() => ({ success: false, path: [{ r, c }], landing: { r, c }, caught: false, bounces: 0, escaped: false }));
   }
   return BOYO_DIRS.map(d => boyoSim(r, c, d.dr, d.dc));
 }
@@ -1453,7 +1460,16 @@ function boyoViable(r, c) {
 function boyoResize(axis, delta) {
   if (axis === 'w') boyoW = Math.min(12, Math.max(1, boyoW + delta));
   else boyoH = Math.min(12, Math.max(1, boyoH + delta));
+  // 外周リング全マスを壁として初期化（内側は全床）
   boyoWalls = new Set();
+  for (let c = -1; c <= boyoW; c++) {
+    boyoWalls.add(-1 + ',' + c);
+    boyoWalls.add(boyoH + ',' + c);
+  }
+  for (let r = -1; r <= boyoH; r++) {
+    boyoWalls.add(r + ',' + (-1));
+    boyoWalls.add(r + ',' + boyoW);
+  }
   boyoSel = null; boyoDir = null;
   boyoRender();
 }
@@ -1481,7 +1497,7 @@ function boyoCellClick(r, c) {
   if (boyoMode === 'edit') {
     boyoToggleWall(r, c);
   } else {
-    if (boyoCellType(r, c) !== 'floor') return; // 壁タップは無視
+    if (boyoCellType(r, c) !== 'floor') return; // 壁タップは無視（床＝出入口も含めて配置可）
     boyoSelect(r, c);
   }
 }
@@ -1509,15 +1525,14 @@ function boyoRender() {
     }
   }
 
-  // グリッド生成（外周含む全マス）
+  // グリッド生成（外周リング含む全マス。外周も編集可能＝出入口を再現）
   let html = '';
   for (let r = -1; r <= boyoH; r++) {
     html += '<tr>';
     for (let c = -1; c <= boyoW; c++) {
-      const outer = r < 0 || r >= boyoH || c < 0 || c >= boyoW;
       const type = boyoCellType(r, c);
       if (type === 'wall') {
-        const editable = !outer && boyoMode === 'edit';
+        const editable = boyoMode === 'edit';
         const cls = editable ? 'wall editable' : 'wall';
         const onclick = editable ? ` onclick="boyoCellClick(${r},${c})"` : '';
         html += `<td class="${cls}"${onclick}></td>`;
@@ -1564,10 +1579,14 @@ function boyoRender() {
     head = `<span class="ng">この位置からは増殖できません。</span>緑のマスに移動してください。`;
   } else if (boyoDir !== null && selResults[boyoDir].success) {
     const res = selResults[boyoDir];
-    const landTxt = res.caught
-      ? '<span class="ok">足元でキャッチ（歩かず回収）</span>'
-      : `落下地点は黄色枠のマス`;
-    head = `<span class="ok">増殖成功！</span> ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回 → ${landTxt}`;
+    if (res.escaped) {
+      head = `<span class="ok">増殖成功！</span> ただし<span class="ng">部屋の外に飛び出して落ちる</span>（回収困難・消失の恐れ） ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回`;
+    } else {
+      const landTxt = res.caught
+        ? '<span class="ok">足元でキャッチ（歩かず回収）</span>'
+        : `落下地点は黄色枠のマス`;
+      head = `<span class="ok">増殖成功！</span> ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回 → ${landTxt}`;
+    }
   } else {
     head = `<span class="ok">増殖可能。</span>方向を選んでください。`;
   }
@@ -1575,7 +1594,8 @@ function boyoRender() {
     const ok = selResults[i].success;
     const sel = boyoDir === i ? ' selected' : '';
     const caught = ok && selResults[i].caught ? ' ★' : '';
-    return `<span class="boyo-dir-btn ${ok ? 'ok' : 'ng'}${sel}" ${ok ? `onclick="boyoPick(${i})"` : ''}>${d.name} ${ok ? '○' : '×'}${caught}</span>`;
+    const mark = ok ? (selResults[i].escaped ? '○⚠' : '○') : '×';
+    return `<span class="boyo-dir-btn ${ok ? 'ok' : 'ng'}${sel}" ${ok ? `onclick="boyoPick(${i})"` : ''}>${d.name} ${mark}${caught}</span>`;
   }).join('');
   msg.innerHTML = head + `<div class="boyo-dirs">${dirBtns}</div>`;
 }
