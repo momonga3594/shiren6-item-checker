@@ -124,6 +124,28 @@
     font-family: inherit;
   }
   .filter-bar input:focus { outline: none; border-color: var(--accent2); }
+  .filter-bar select { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 6px; border-radius: 4px; font: inherit; font-size: 12px; max-width: 100%; }
+  .filter-bar input[type="checkbox"] { width: auto; }
+  .save-note { font-size: 11px; color: var(--text2); padding: 8px 0; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+  .seal-options { border: 1px solid var(--border); border-radius: 5px; padding: 8px; margin: 10px 0; }
+  .seal-options legend { color: var(--teal); font-size: 12px; }
+  .seal-options > div { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px; }
+  .seal-options label { display: flex; gap: 6px; align-items: center; min-height: 36px; font-size: 12px; }
+  .boyo-grid th { min-width: 24px; color: var(--text2); font-weight: normal; font-size: 11px; }
+  .boyo-grid td { padding: 0; }
+  .boyo-cell { width: 100%; height: 100%; min-height: 34px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+  .boyo-grid td .boyo-cell-arrows { pointer-events: none; }
+  .boyo-grid td .boyo-cell-arrow { width: 12px; height: 12px; font-size: 10px; }
+  .boyo-dirs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); max-width: 440px; }
+  .boyo-dir-btn { min-height: 52px; font: inherit; font-size: 13px; border-radius: 6px; }
+  .boyo-dir-btn .direction-arrow { font-size: 26px; vertical-align: middle; margin-right: 6px; }
+  .boyo-recommendation { margin-bottom: 8px; color: var(--accent2); font-size: 15px; font-weight: bold; }
+  .boyo-launch { font-size: 19px; font-weight: bold; color: #ffd54f; margin: 6px 0; }
+  .boyo-solution-guide summary { padding: 10px; cursor: pointer; color: var(--accent2); }
+  .boyo-position-btn { min-height: 36px; font-size: 12px; }
+  .boyo-solution-row { padding: 5px; }
   .filter-count { font-size: 12px; color: var(--accent2); }
   .filter-clear { background: none; border: 1px solid var(--border); color: var(--text2); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-family: inherit; }
   .filter-clear:hover { border-color: var(--accent2); color: var(--accent2); }
@@ -230,6 +252,37 @@
     border-color: var(--accent2);
     background: rgba(245,166,35,0.08);
   }
+  /* 価格一致の枠は太くし、識別状態によって薄くならないようにする。 */
+  .item-card.price-match {
+    border-width: 2px;
+    padding: 7px 9px;
+    opacity: 1;
+    border-color: #ffd54f;
+  }
+  .item-card.price-match-blessed {
+    border-color: #67e8f9;
+    background: rgba(103,232,249,0.08);
+  }
+  .item-card.price-match-both {
+    border-color: #ffd54f #67e8f9 #67e8f9 #ffd54f;
+    background: linear-gradient(110deg, rgba(255,213,79,0.08), rgba(103,232,249,0.08));
+  }
+  .price-match-label {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #ffd54f;
+    background: #1a1a2e;
+    border: 1px solid currentColor;
+  }
+  .price-match-blessed .price-match-label { color: #67e8f9; }
+  .price-match-both .price-match-label { color: #fff; border-color: #ffd54f #67e8f9 #67e8f9 #ffd54f; }
+  .item-card.price-match.identified .item-info { opacity: 0.5; }
+  .item-card.price-match.absent .item-info { opacity: 0.35; }
 
   .target-badge {
     display: inline-block;
@@ -361,6 +414,13 @@
   .boyo-grid td .pathnum {
     display: inline-block; font-size: 10px; font-weight: bold; color: #a5d6ff;
   }
+  .boyo-cell-arrows { display: inline-flex; gap: 1px; align-items: center; justify-content: center; flex-wrap: wrap; max-width: 32px; }
+  .boyo-cell-arrow {
+    display: inline-flex; width: 14px; height: 14px; align-items: center; justify-content: center;
+    color: #ffd54f; font-size: 12px; font-weight: bold; line-height: 1; cursor: pointer;
+    border-radius: 3px;
+  }
+  .boyo-cell-arrow:hover { background: rgba(255,213,79,0.25); }
   .boyo-grid td.on-path { box-shadow: inset 0 0 0 2px rgba(79,195,247,0.6); }
   .boyo-grid td.landing { box-shadow: inset 0 0 0 2px #ffd54f; }
   .boyo-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 11px; color: var(--text2); margin: 8px 0; justify-content: center; }
@@ -368,6 +428,71 @@
   .boyo-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
   .boyo-note { font-size: 12px; color: var(--text2); line-height: 1.8; margin-top: 12px; }
   .boyo-note li { margin: 2px 0; }
+  .boyo-solution-guide { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .boyo-solution-title { color: var(--accent2); font-weight: bold; font-size: 12px; }
+  .boyo-solution-note { color: var(--text2); font-size: 10px; margin: 3px 0 5px; }
+  .boyo-solution-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 4px 0; }
+  .boyo-solution-dir { min-width: 70px; color: #ffd54f; font-weight: bold; }
+  .boyo-position-btn {
+    padding: 3px 7px; border: 1px solid #276246; border-radius: 12px;
+    background: #1d4030; color: #b7f0c8; cursor: pointer; font: inherit; font-size: 10px;
+  }
+  .boyo-position-btn:hover { border-color: #ffd54f; color: #ffd54f; }
+
+  /* ---- Damage calculator tab ---- */
+  .damage-panel { max-width: 900px; margin: 0 auto; padding: 12px; }
+  .damage-intro {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 10px; font-size: 12px; line-height: 1.8;
+    color: var(--text2);
+  }
+  .damage-intro b { color: var(--text); }
+  .damage-intro a { color: var(--blue); }
+  .damage-mode-toggle { display: flex; gap: 6px; margin-bottom: 10px; }
+  .damage-mode-btn {
+    flex: 1; padding: 9px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+    font-family: inherit;
+  }
+  .damage-mode-btn.selected { background: rgba(245,166,35,0.18); border-color: var(--accent2); color: var(--accent2); font-weight: bold; }
+  .damage-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .damage-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .damage-card h3 { color: var(--teal); font-size: 14px; margin-bottom: 10px; }
+  .damage-field { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; margin: 7px 0; }
+  .damage-field label { color: var(--text2); font-size: 12px; }
+  .damage-field input, .damage-field select {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 8px; border-radius: 4px; font: inherit; font-size: 12px;
+  }
+  .damage-field input:focus, .damage-field select:focus { outline: none; border-color: var(--accent2); }
+  .damage-checkbox { display: flex; align-items: center; gap: 8px; color: var(--text2); font-size: 12px; margin: 9px 0; }
+  .damage-checkbox input { accent-color: var(--accent2); }
+  .damage-hint { color: var(--text2); font-size: 10px; line-height: 1.5; margin-top: 3px; }
+  .damage-common { margin-top: 10px; }
+  .damage-result {
+    background: linear-gradient(135deg, rgba(245,166,35,0.16), rgba(15,52,96,0.7));
+    border: 1px solid var(--accent2); border-radius: 8px; padding: 14px; margin-top: 10px;
+  }
+  .damage-result-title { color: var(--accent2); font-size: 12px; margin-bottom: 5px; }
+  .damage-result-main { font-size: 24px; font-weight: bold; letter-spacing: 1px; }
+  .damage-result-main span { color: var(--accent2); }
+  .damage-result-sub { color: var(--text2); font-size: 11px; margin-top: 6px; }
+  .damage-breakdown {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; margin-top: 10px; font-size: 11px; line-height: 1.8; color: var(--text2);
+    overflow-wrap: anywhere;
+  }
+  .damage-breakdown b { color: var(--text); }
+  .damage-warning { color: #ff8a80; margin-top: 5px; }
+  @media (max-width: 600px) {
+    .damage-form-grid { grid-template-columns: 1fr; }
+    .damage-panel { padding: 8px 6px; }
+    .damage-card { padding: 10px; }
+    .damage-result-main { font-size: 21px; }
+  }
 
   footer {
     max-width: 900px; margin: 24px auto 16px; padding: 12px 16px;
@@ -491,6 +616,16 @@
     .item-card { grid-template-columns: 1fr 110px 36px; }
     .section-header { grid-template-columns: 1fr 110px 36px; }
   }
+  .boyo-panel .boyo-dirs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; max-width: 440px; }
+  .boyo-panel .boyo-dir-btn { min-height: 52px; font: inherit; font-size: 13px; border-radius: 6px; }
+  .boyo-panel .boyo-position-btn { min-height: 40px; font-size: 12px; }
+  .boyo-panel .boyo-grid td { padding: 0; }
+  .boyo-panel .boyo-cell { display: block; min-height: 34px; }
+  .boyo-panel .boyo-grid th { font-size: 11px; }
+  .boyo-panel .boyo-grid td.viable-feet::after { pointer-events: none; }
+  .boyo-grid-wrap { overflow-x: auto; max-width: 100%; }
+  .item-price { overflow-wrap: anywhere; }
+  .seal-options input { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -516,11 +651,15 @@
 </div>
 
 <div class="filter-bar">
-  <label>買値で絞り込み:</label>
+  <label for="priceFilter">価格で絞り込み:</label>
   <input type="number" id="priceFilter" placeholder="例: 1000" oninput="applyFilterInput()" />
-  <label>名前で検索:</label>
+  <label for="nameFilter">名前で検索:</label>
   <input type="text" id="nameFilter" placeholder="例: かなしばり" oninput="render()" style="width:120px" />
   <button class="filter-clear" onclick="clearFilter()">クリア</button>
+  <label for="priceSide">価格の種類</label>
+  <select id="priceSide" onchange="priceOptionsChanged()"><option value="either">買値・売値</option><option value="buy">買値</option><option value="sell">売値</option></select>
+  <label for="priceCondition">道具の状態</label>
+  <select id="priceCondition" onchange="priceOptionsChanged()"><option value="normal">通常</option><option value="cursed">呪い</option><option value="blessed">祝福</option><option value="normal-blessed">通常＋祝福</option></select>
   <span class="filter-count" id="filterCount"></span>
 </div>
 <div class="chip-bar" id="chipBar">
@@ -542,6 +681,7 @@
     <div class="tab" onclick="switchTab('shield')" id="tab-shield">盾 <span class="badge" id="badge-shield">0/0</span></div>
     <div class="tab" onclick="switchTab('tips')" id="tab-tips">識別TIPS</div>
     <div class="tab" onclick="switchTab('boyo')" id="tab-boyo">ボヨヨン増殖</div>
+    <div class="tab" onclick="switchTab('damage')" id="tab-damage">ダメージ計算</div>
   </div>
 </div>
 
@@ -784,19 +924,26 @@
       <button onclick="boyoResize('h',1)">＋</button>
     </div>
     <div class="boyo-mode-toggle">
-      <span class="boyo-mode-btn" id="boyoModeEditBtn" onclick="boyoSetMode('edit')">壁を編集</span>
-      <span class="boyo-mode-btn" id="boyoModePlayBtn" onclick="boyoSetMode('play')">投げ位置を調べる</span>
+      <button class="boyo-mode-btn" id="boyoModeEditBtn" onclick="boyoSetMode('edit')">壁を編集</button>
+      <button class="boyo-mode-btn" id="boyoModePlayBtn" onclick="boyoSetMode('play')">投げ位置を調べる</button>
     </div>
+    <button class="boyo-mode-btn" id="boyoUndo" onclick="boyoUndo()">ひとつ戻す</button>
+    <label><input id="boyoFeetOnly" type="checkbox" onchange="boyoFilterChanged()">足元回収のみ</label>
+    <button class="boyo-mode-btn" onclick="boyoRecommend()">おすすめ位置を選ぶ</button>
+    <button class="boyo-mode-btn" onclick="boyoClearSelection()">選択を解除</button>
     <span style="font-size:11px;color:var(--text2)">※部屋の内側（床）のマス数。外周も含め全マス編集可能</span>
   </div>
   <div class="boyo-msg" id="boyoMsg"></div>
   <div class="boyo-grid-wrap"><table class="boyo-grid" id="boyoGrid"></table></div>
+  <details class="boyo-solution-guide" id="boyoSolutions"><summary>投げ位置と方向の一覧</summary><div id="boyoSolutionList"></div></details>
+  <p class="save-note" id="boyoSaveStatus"></p>
   <div class="boyo-legend">
     <span><i style="background:#1d4030"></i>増殖可能な立ち位置</span>
     <span style="color:#ffd54f">★ 足元キャッチあり（歩かず回収）</span>
     <span><i style="background:#7b3f00"></i>シレン</span>
     <span><i style="background:#1565c0"></i>ボヨヨン壁</span>
     <span><i style="border:2px solid #ffd54f;width:9px;height:9px"></i>落下地点</span>
+    <span>マスを選び、大きな方向ボタンで投げる方向を指定</span>
     <span>タップで壁⇔床（編集モード）</span>
     <span>○⚠ = 増殖成功するが部屋の外へ飛び出す方向</span>
   </div>
@@ -812,6 +959,75 @@
     </ul>
     <div class="tips-src">参考: <a href="https://ritvia.jp/works/bound_sim/" target="_blank" rel="noopener">ritvia ボヨヨン壁シミュレーター</a> ／ <a href="https://mogamoga1024.github.io/siren6/byyn.html" target="_blank" rel="noopener">簡単ボヨヨンチェッカー</a></div>
   </div>
+</div>
+
+<div class="damage-panel" id="damagePanel" style="display:none">
+  <div class="damage-intro">
+    <b>通常攻撃のダメージを計算</b><br>
+    記事の検証式に基づく暫定計算です。乱数は87.5〜112.5%（±1/8）、小数点以下は切り捨てます。神器は装備画面の強さを直接入力できます。印は所持だけでなく、今回の攻撃で条件を満たすものだけ選択してください。<br>
+    参考：<a href="https://shiren6.game-info.wiki/d/%B4%F0%CB%DC%A5%B7%A5%B9%A5%C6%A5%E0" target="_blank" rel="noopener">風来のシレン6 Wiki - 基本システム</a> ／ <a href="https://note.com/feketerigo6/n/n44e373fda515" target="_blank" rel="noopener">印の倍率の検証</a>
+  </div>
+  <div class="damage-mode-toggle">
+    <button class="damage-mode-btn selected" id="damageModeDeal" onclick="damageSetMode('deal')">与ダメージ（シレン → 敵）</button>
+    <button class="damage-mode-btn" id="damageModeReceive" onclick="damageSetMode('receive')">受ダメージ（敵 → シレン）</button>
+  </div>
+  <div class="damage-form-grid">
+    <section class="damage-card">
+      <h3 id="damageAttackTitle">攻撃側：シレン</h3>
+      <div id="damageDealAttackFields">
+        <div class="damage-field"><label for="damageLevel">レベル</label><input id="damageLevel" type="number" min="1" step="1" value="1" oninput="damageRender()"></div>
+        <div class="damage-field"><label for="damageStrength">ちから</label><input id="damageStrength" type="number" min="0" step="1" value="8" oninput="damageRender()"></div>
+        <div class="damage-field"><label for="damageWeapon">武器</label><select id="damageWeapon" onchange="damageRender()"></select></div>
+        <div class="damage-field"><label for="damageWeaponEnhance">武器の強化値</label><input id="damageWeaponEnhance" type="number" step="1" value="0" oninput="damageRender()"></div>
+        <label class="damage-checkbox"><input id="damageWeaponDirect" type="checkbox" onchange="damageRender()">武器の強さを直接入力（神器など）</label>
+        <div class="damage-field"><label for="damageWeaponTotal">武器の強さ（合計）</label><input id="damageWeaponTotal" type="number" min="0" step="1" value="0" oninput="damageRender()"></div>
+        <fieldset class="seal-options"><legend>発動している特攻・攻撃印</legend><div id="damageAttackSeals"></div></fieldset>
+        <div class="damage-field"><label for="damageSpecial">追加の特攻値</label><input id="damageSpecial" type="number" min="0" step="0.5" value="0" oninput="damageRender()"></div>
+        <div class="damage-hint">選んだ印は自動で加算します。相手に有効な印・発動条件を満たす印だけを選択してください。</div>
+        <label class="damage-checkbox"><input id="damageDosukoi" type="checkbox" onchange="damageRender()">ドスコイ状態（1.5倍）</label>
+        <div class="damage-field"><label for="damageAttackBuff">攻撃力補正</label><input id="damageAttackBuff" type="number" min="0" step="0.05" value="1" oninput="damageRender()"></div>
+      </div>
+      <div id="damageReceiveAttackFields" style="display:none">
+        <div class="damage-field"><label for="damageMonsterAttack">モンスター攻撃力</label><input id="damageMonsterAttack" type="number" min="0" step="1" value="100" oninput="damageRender()"></div>
+        <div class="damage-field"><label for="damageMonsterAttackBuff">攻撃力補正</label><input id="damageMonsterAttackBuff" type="number" min="0" step="0.05" value="1" oninput="damageRender()"></div>
+        <div class="damage-hint">毒・怒り・水バフなど、モンスター側の攻撃力変化を倍率で入力します。</div>
+      </div>
+    </section>
+    <section class="damage-card">
+      <h3 id="damageDefenseTitle">防御側：モンスター</h3>
+      <div id="damageDealDefenseFields">
+        <div class="damage-field"><label for="damageMonsterDefense">モンスター守備力</label><input id="damageMonsterDefense" type="number" min="0" step="1" value="0" oninput="damageRender()"></div>
+        <div class="damage-field"><label for="damageEnemyDefenseBuff">相手防御補正</label><input id="damageEnemyDefenseBuff" type="number" min="0.01" step="0.01" value="1" oninput="damageRender()"></div>
+        <div class="damage-hint">敵の防御力アップは1より大きく、防御力ダウンは1未満の倍率で調整します。</div>
+      </div>
+      <div id="damageReceiveDefenseFields" style="display:none">
+        <div class="damage-field"><label for="damageShield">盾</label><select id="damageShield" onchange="damageRender()"></select></div>
+        <div class="damage-field"><label for="damageShieldEnhance">盾の強化値</label><input id="damageShieldEnhance" type="number" step="1" value="0" oninput="damageRender()"></div>
+        <label class="damage-checkbox"><input id="damageShieldDirect" type="checkbox" onchange="damageRender()">盾の強さを直接入力（神器など）</label>
+        <div class="damage-field"><label for="damageShieldTotal">盾の強さ（合計）</label><input id="damageShieldTotal" type="number" min="0" step="1" value="0" oninput="damageRender()"></div>
+        <fieldset class="seal-options"><legend>発動している軽減印</legend><div id="damageDefenseSeals"></div></fieldset>
+        <div class="damage-field"><label for="damageDamageReduction">追加の軽減倍率</label><input id="damageDamageReduction" type="number" min="0" max="1" step="0.01" value="1" oninput="damageRender()"></div>
+        <div class="damage-field"><label for="damageDefenseBuff">防御力補正</label><input id="damageDefenseBuff" type="number" min="0.01" step="0.01" value="1" oninput="damageRender()"></div>
+        <div class="damage-hint">選んだ軽減印は自動で乗算します。追加倍率は未選択の効果だけを入力してください（初期値1）。</div>
+      </div>
+    </section>
+  </div>
+  <section class="damage-card damage-common">
+    <h3>共通補正</h3>
+    <div class="damage-field"><label for="damageIncense">お香</label><select id="damageIncense" onchange="damageRender()">
+      <option value="1">なし（1倍）</option>
+      <option value="2">攻めのお香（2倍）</option>
+      <option value="0.5">守りのお香（0.5倍）</option>
+    </select></div>
+  </section>
+  <div class="damage-result" aria-live="polite">
+    <div class="damage-result-title" id="damageResultTitle">予測ダメージ</div>
+    <div class="damage-result-main"><span id="damageMin">0</span> ～ <span id="damageMax">0</span></div>
+    <div class="damage-result-sub" id="damageResultSub"></div>
+  </div>
+  <div class="damage-breakdown" id="damageBreakdown"></div>
+  <p class="damage-hint">空欄は初期値として計算します。範囲外の値は各欄の上限・下限に補正し、防御補正の下限は0.01倍です。整数欄の小数は切り捨てます。</p>
+  <p class="save-note" id="damageSaveStatus"></p>
 </div>
 
 <footer>
@@ -914,26 +1130,26 @@ const ITEMS = {
     { name: '毒草',       buy: 50,   sell: 20,  effect: '食べると毒状態。投げると敵を毒にする' },
     { name: '目つぶし草', buy: 70,   sell: 25,  effect: '食べると目つぶし状態。投げると敵を目つぶしにする', hetero: true },
     { name: 'パワーアップ草', buy: 70, sell: 25, effect: '一時的に攻撃力が増加する' },
-    { name: 'めぐすり草', buy: 70,   sell: 25,  effect: '壁の中や遠くまで見えるようになる' },
+    { name: 'めぐすり草', buy: 70,   sell: 25,  effect: '罠が見えるようになる' },
     { name: '混乱草',     buy: 70,   sell: 25,  effect: '食べると混乱状態。投げると敵を混乱にする', hetero: true },
     { name: 'すばやさ草', buy: 70,   sell: 25,  effect: '食べると行動速度が1段階上がる' },
     { name: '睡眠草',     buy: 70,   sell: 25,  effect: '食べると睡眠状態。投げると敵を睡眠にする', hetero: true },
-    { name: '弟切草',     buy: 80,   sell: 30,  effect: 'HP100回復。HP最大時は最大HP+2。混乱・まどわし状態を回復', hetero: true },
+    { name: '弟切草',     buy: 80,   sell: 30,  effect: 'HP100回復。HP最大時は最大HP+2', hetero: true },
     { name: 'くねくね草', buy: 100,  sell: 40,  effect: '飲むとレベル-1' },
     { name: '高飛び草',   buy: 100,  sell: 40,  effect: 'フロア内のどこかにワープする', hetero: true },
     { name: 'いやし草',   buy: 200,  sell: 80,  effect: 'HP200回復。HP最大時は最大HP+3。悪い状態異常を回復', hetero: true },
     { name: '胃拡張の種', buy: 200,  sell: 80,  effect: '最大満腹度+5' },
-    { name: '胃縮小の種', buy: 200,  sell: 80,  effect: '最大満腹度-5（罠）' },
+    { name: '胃縮小の種', buy: 200,  sell: 80,  effect: '最大満腹度-5' },
     { name: 'かぐわし草', buy: 200,  sell: 80,  effect: '飲むと悪い状態異常が回復する' },
     { name: 'ドラゴン草', buy: 250,  sell: 100, effect: '正面に炎を吐く（遠距離攻撃）' },
     { name: '無敵草',     buy: 400,  sell: 160, effect: '一定ターン無敵になる' },
     { name: '復活の草',   buy: 400,  sell: 160, effect: '一度だけ死から復活する' },
     { name: '不幸の種',   buy: 400,  sell: 160, effect: '飲むとレベル-3' },
     { name: '命の草',     buy: 500,  sell: 200, effect: '最大HP+4。仲間に投げるとHP全回復', hetero: true },
-    { name: '毒消し草',   buy: 600,  sell: 240, effect: '毒状態を解除する' },
+    { name: '毒消し草',   buy: 600,  sell: 240, effect: '減少したちからを回復する' },
     { name: 'ちからの草', buy: 700,  sell: 280, effect: '最大ちから+1。ちからが下がっている時はちからを1回復' },
     { name: 'しあわせ草', buy: 1000, sell: 400, effect: '飲むとレベル+1' },
-    { name: '超不幸の種', buy: 2000, sell: 800, effect: '飲むとレベル・HP・満腹度が1になる' },
+    { name: '超不幸の種', buy: 2000, sell: 800, effect: '飲むとLv1、HP1、満腹度2の状態になる' },
     { name: '天使の種',   buy: 2000, sell: 800, effect: '飲むとレベル+3' },
   ],
   bracelet: [
@@ -1079,11 +1295,78 @@ function loadState() {
   const defaults = { scroll: {}, staff: {}, pot: {}, bracelet: {}, herb: {}, weapon: {}, shield: {} };
   try {
     const saved = localStorage.getItem('shiren6-id-state');
-    if (saved) return Object.assign(defaults, JSON.parse(saved));
+    if (saved) {
+      const data = JSON.parse(saved);
+      Object.keys(defaults).forEach(cat => {
+        if (!data || !data[cat] || typeof data[cat] !== 'object' || Array.isArray(data[cat])) return;
+        ITEMS[cat].forEach(item => {
+          const status = data[cat][item.name];
+          if (['unknown','identified','absent'].includes(status)) defaults[cat][item.name] = status;
+        });
+      });
+    }
   } catch(e) {}
   return defaults;
 }
-function saveState() { localStorage.setItem('shiren6-id-state', JSON.stringify(state)); }
+function readStored(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (_) { return fallback; }
+}
+function writeStored(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; }
+}
+function saveState() { writeStored('shiren6-id-state', state); }
+
+// 状態ごとの価格。祝福価格は草・巻物のみ対象。
+function priceOptions(item, side, count) {
+  const normal = side === 'buy' ? getBuy(item, count) : getSell(item, count);
+  const condition = document.getElementById('priceCondition').value;
+  const blessed = currentTab === 'herb' || currentTab === 'scroll';
+  if (condition === 'cursed') return [{state:'cursed',price:Math.floor(normal * 87 / 100)}];
+  if (condition === 'blessed') return blessed ? [{state:'blessed',price:normal * 2}] : [];
+  if (condition === 'normal-blessed' && blessed) return [{state:'normal',price:normal},{state:'blessed',price:normal * 2}];
+  return [{state:'normal',price:normal}];
+}
+function priceVariants(item, side, count) {
+  return [...new Set(priceOptions(item, side, count).map(option => option.price))];
+}
+function relevantCounts(item) {
+  return item.counts ? (countFilter === null ? item.counts : item.counts.filter(c => c === countFilter)) : [null];
+}
+function matchingPriceStates(item) {
+  const side = document.getElementById('priceSide').value;
+  const matches = new Set();
+  relevantCounts(item).forEach(count => ['buy', 'sell'].forEach(kind => {
+    if (side !== 'either' && side !== kind) return;
+    const selected = kind === 'buy' ? selectedPrices : selectedSellPrices;
+    priceOptions(item, kind, count).forEach(option => {
+      const matched = Number.isFinite(priceFilter) ? option.price === priceFilter : selected.has(option.price);
+      if (matched) matches.add(option.state);
+    });
+  }));
+  return [...matches];
+}
+function matchesPrice(item) {
+  return matchingPriceStates(item).length > 0;
+}
+function priceMatchDisplay(states) {
+  if (!states.length) return {className:'',label:''};
+  if (states.includes('normal') && states.includes('blessed')) return {className:'price-match-both',label:'通常・祝福価格で一致'};
+  if (states.includes('blessed')) return {className:'price-match-blessed',label:'祝福価格で一致'};
+  if (states.includes('cursed')) return {className:'price-match-cursed',label:'呪い価格で一致'};
+  return {className:'price-match-normal',label:'通常価格で一致'};
+}
+function itemPriceHtml(item) {
+  const conditionLabels = {normal:'通常', cursed:'呪い', blessed:'祝福', 'normal-blessed':'通常＋祝福'};
+  const condition = document.getElementById('priceCondition').value;
+  if (condition === 'blessed' && !['herb','scroll'].includes(currentTab)) return '<div class="price-sell">祝福価格の対象外</div>';
+  const line = side => {
+    const values = [...new Set(relevantCounts(item).flatMap(count => priceVariants(item, side, count)))].sort((a,b) => a-b);
+    if (!values.length) return '—';
+    if (condition === 'normal-blessed') return values.map(v => v.toLocaleString()).join(' / ') + 'G';
+    return (values.length === 1 ? values[0].toLocaleString() : values[0].toLocaleString() + '〜' + values.at(-1).toLocaleString()) + 'G';
+  };
+  return `<div class="price-buy">${line('buy')}</div><div class="price-sell">売: ${line('sell')}<br>${conditionLabels[condition]}</div>`;
+}
 
 function getStatus(cat, name) { return state[cat][name] || 'unknown'; }
 
@@ -1106,15 +1389,17 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
 
-  const isSpecial = tab === 'tips' || tab === 'boyo';
+  const isSpecial = tab === 'tips' || tab === 'boyo' || tab === 'damage';
   document.querySelector('.filter-bar').style.display = isSpecial ? 'none' : 'flex';
   document.getElementById('chipBar').style.display = isSpecial ? 'none' : 'flex';
   document.getElementById('mainContent').style.display = isSpecial ? 'none' : 'block';
   document.getElementById('tipsPanel').style.display = tab === 'tips' ? 'block' : 'none';
   document.getElementById('boyoPanel').style.display = tab === 'boyo' ? 'block' : 'none';
+  document.getElementById('damagePanel').style.display = tab === 'damage' ? 'block' : 'none';
 
   if (tab === 'boyo') { boyoRender(); return; }
   if (tab === 'tips') return;
+  if (tab === 'damage') { damageRender(); return; }
 
   selectedPrices.clear();
   selectedSellPrices.clear();
@@ -1140,6 +1425,11 @@ function toggleChip(price, type) {
   render();
 }
 
+function priceOptionsChanged() {
+  selectedPrices.clear(); selectedSellPrices.clear();
+  renderChips(); render();
+}
+
 function toggleCount(c) {
   countFilter = countFilter === c ? null : c;
   document.getElementById('priceFilter').value = '';
@@ -1153,6 +1443,8 @@ function toggleCount(c) {
 function clearFilter() {
   document.getElementById('priceFilter').value = '';
   document.getElementById('nameFilter').value = '';
+  document.getElementById('priceSide').value = 'either';
+  document.getElementById('priceCondition').value = 'normal';
   priceFilter = null;
   selectedPrices.clear();
   selectedSellPrices.clear();
@@ -1185,18 +1477,10 @@ function renderChips() {
   // Determine effective price lists based on countFilter
   let buyPricesSet = new Set();
   let sellPricesSet = new Set();
-  items.forEach(it => {
-    if (it.counts) {
-      const relevantCounts = countFilter ? it.counts.filter(c => c === countFilter) : it.counts;
-      relevantCounts.forEach(c => {
-        buyPricesSet.add(getBuy(it, c));
-        sellPricesSet.add(getSell(it, c));
-      });
-    } else {
-      buyPricesSet.add(it.buy);
-      sellPricesSet.add(it.sell);
-    }
-  });
+  items.forEach(it => relevantCounts(it).forEach(c => {
+    priceVariants(it, 'buy', c).forEach(p => buyPricesSet.add(p));
+    priceVariants(it, 'sell', c).forEach(p => sellPricesSet.add(p));
+  }));
   const buyPrices  = [...buyPricesSet].sort((a, b) => a - b);
   const sellPrices = [...sellPricesSet].sort((a, b) => a - b);
 
@@ -1207,8 +1491,9 @@ function renderChips() {
     buyRow.style.display  = 'none';
     sellRow.style.display = 'none';
   } else {
-    buyRow.style.display  = 'flex';
-    sellRow.style.display = 'flex';
+    const side = document.getElementById('priceSide').value;
+    buyRow.style.display  = side === 'sell' ? 'none' : 'flex';
+    sellRow.style.display = side === 'buy' ? 'none' : 'flex';
     buyRow.innerHTML =
       '<span class="chip-label">買値:</span>' +
       buyPrices.map(p =>
@@ -1252,30 +1537,19 @@ function render() {
   }
 
   // Apply price filter
-  if (priceFilter !== null && !isNaN(priceFilter)) {
-    filtered = filtered.filter(it => {
-      if (it.counts) {
-        const relevant = countFilter ? [countFilter] : it.counts;
-        return relevant.some(c => getBuy(it, c) === priceFilter || getSell(it, c) === priceFilter);
-      }
-      return it.buy === priceFilter || it.sell === priceFilter;
-    });
-  } else if (selectedPrices.size > 0 || selectedSellPrices.size > 0) {
-    filtered = filtered.filter(it => {
-      if (it.counts) {
-        const relevant = countFilter ? [countFilter] : it.counts;
-        return relevant.some(c =>
-          (selectedPrices.size > 0 && selectedPrices.has(getBuy(it, c))) ||
-          (selectedSellPrices.size > 0 && selectedSellPrices.has(getSell(it, c)))
-        );
-      }
-      return (selectedPrices.size > 0 && selectedPrices.has(it.buy)) ||
-             (selectedSellPrices.size > 0 && selectedSellPrices.has(it.sell));
-    });
-  }
+  const priceActive = Number.isFinite(priceFilter) || selectedPrices.size > 0 || selectedSellPrices.size > 0;
+  if (priceActive) filtered = filtered.filter(matchesPrice);
+  if (document.getElementById('priceCondition').value === 'blessed' && !['herb','scroll'].includes(currentTab)) filtered = [];
 
-  // Sort
+  // 通常＋祝福の価格検索では、通常一致（両方一致を含む）を先に表示。
+  // 同じ価格グループ内では従来どおり未識別→識別済み→なしの順。
+  const priceOrder = new Map();
+  if (priceActive && document.getElementById('priceCondition').value === 'normal-blessed') {
+    filtered.forEach(item => priceOrder.set(item, matchingPriceStates(item).includes('normal') ? 0 : 1));
+  }
   filtered = [...filtered].sort((a, b) => {
+    const priceDifference = (priceOrder.get(a) || 0) - (priceOrder.get(b) || 0);
+    if (priceDifference) return priceDifference;
     const order = { unknown: 0, identified: 1, absent: 2 };
     return order[getStatus(currentTab, a.name)] - order[getStatus(currentTab, b.name)];
   });
@@ -1295,7 +1569,7 @@ function render() {
   // Filter count label
   const anyFilter = (priceFilter !== null && !isNaN(priceFilter)) ||
                     selectedPrices.size > 0 || selectedSellPrices.size > 0 || countFilter !== null ||
-                    nameQuery !== '';
+                    nameQuery !== '' || document.getElementById('priceCondition').value !== 'normal';
   document.getElementById('filterCount').textContent = anyFilter ? `${filtered.length}件該当` : '';
 
   // Render items
@@ -1305,6 +1579,8 @@ function render() {
   if (filtered.length === 0) {
     list.innerHTML = '';
     noResults.style.display = 'block';
+    noResults.textContent = document.getElementById('priceCondition').value === 'blessed' && !['herb','scroll'].includes(currentTab)
+      ? '祝福価格の絞り込みは草・巻物だけが対象です。道具の状態を変更してください。' : '一致するアイテムが見つかりません';
     return;
   }
   noResults.style.display = 'none';
@@ -1313,26 +1589,7 @@ function render() {
     const status = getStatus(currentTab, item.name);
 
     // Price display
-    let priceHtml;
-    if (item.counts) {
-      if (countFilter !== null && item.counts.includes(countFilter)) {
-        const b = getBuy(item, countFilter);
-        const s = getSell(item, countFilter);
-        priceHtml = `<div class="price-buy">${b.toLocaleString()}G</div><div class="price-sell">売: ${s.toLocaleString()}G</div>`;
-      } else {
-        const minB = getMinBuy(item);
-        const maxB = getMaxBuy(item);
-        const minS = getSell(item, item.counts[0]);
-        const maxS = getSell(item, item.counts[item.counts.length - 1]);
-        if (minB === maxB) {
-          priceHtml = `<div class="price-buy">${minB.toLocaleString()}G</div><div class="price-sell">売: ${minS.toLocaleString()}G</div>`;
-        } else {
-          priceHtml = `<div class="price-buy">${minB.toLocaleString()}〜${maxB.toLocaleString()}G</div><div class="price-sell">売: ${minS.toLocaleString()}〜${maxS.toLocaleString()}G</div>`;
-        }
-      }
-    } else {
-      priceHtml = `<div class="price-buy">${item.buy.toLocaleString()}G</div><div class="price-sell">売: ${item.sell.toLocaleString()}G</div>`;
-    }
+    const priceHtml = itemPriceHtml(item);
 
     // Count badges
     let countHtml = '';
@@ -1345,19 +1602,10 @@ function render() {
       }</div>`;
     }
 
-    // Highlight if matches active price filter
-    const isHighlighted = (() => {
-      if (!anyFilter) return false;
-      if (item.counts) {
-        const relevant = countFilter ? item.counts.filter(c => c === countFilter) : item.counts;
-        if (priceFilter !== null) return relevant.some(c => getBuy(item, c) === priceFilter || getSell(item, c) === priceFilter);
-        if (selectedPrices.size > 0 || selectedSellPrices.size > 0)
-          return relevant.some(c => selectedPrices.has(getBuy(item, c)) || selectedSellPrices.has(getSell(item, c)));
-        return countFilter !== null;
-      }
-      if (priceFilter !== null) return item.buy === priceFilter || item.sell === priceFilter;
-      return selectedPrices.has(item.buy) || selectedSellPrices.has(item.sell);
-    })();
+    // 価格に一致した状態を絞り込み・枠色・文言で共通利用する。
+    const priceMatch = priceMatchDisplay(priceActive ? matchingPriceStates(item) : []);
+    const isHighlighted = priceMatch.label !== '' || countFilter !== null && Boolean(item.counts);
+    const priceMatchClass = priceMatch.label ? `price-match ${priceMatch.className}` : '';
 
     const statHtml = item.atk != null
       ? `<div class="item-stat">攻撃力: ${item.atk} ／ 印数: ${item.seals}</div>`
@@ -1366,14 +1614,14 @@ function render() {
         : '';
 
     return `
-      <div class="item-card ${status === 'identified' ? 'identified' : status === 'absent' ? 'absent' : ''} ${isHighlighted ? 'highlighted' : ''}">
+      <div class="item-card ${status === 'identified' ? 'identified' : status === 'absent' ? 'absent' : ''} ${isHighlighted ? 'highlighted' : ''} ${priceMatchClass}">
         <div class="item-info">
           <div class="item-name">${item.name}${item.target ? '<span class="target-badge">どれ</span>' : ''}${item.hetero ? '<span class="hetero-badge">異種合成</span>' : ''}</div>
           ${statHtml}
           <div class="item-effect">${item.effect}</div>
           ${countHtml}
         </div>
-        <div class="item-price">${priceHtml}</div>
+        <div class="item-price">${priceHtml}${priceMatch.label ? `<span class="price-match-label">${priceMatch.label}</span>` : ''}</div>
         <div class="item-status-col">
           <button class="status-btn s-${status}" onclick="cycleStatus('${currentTab}', '${item.name.replace(/'/g, "\\'")}')">
             ${statusIcon(status)}
@@ -1388,6 +1636,172 @@ function render() {
 renderChips();
 render();
 
+// ================= ダメージ計算 =================
+let damageMode = 'deal';
+const DAMAGE_ATTACK_SEALS = ['獣','水','竜','爆','浮','仏','目','ド','斬','金食い攻撃','腹ぢから攻撃','会心（発動時）'].map(name => ({name, value:0.5})).concat([{name:'空腹時攻撃',value:1}]);
+const DAMAGE_DEFENSE_SEALS = [
+  {name:'腹ぢから防御',value:0.7}, {name:'金食い防御',value:0.7},
+  {name:'ハングリー',value:0.7}, {name:'種族の守り（対象一致時）',value:0.7},
+  {name:'満タン防御（HP満タン時）',value:0.5}, {name:'痛恨耐性（痛恨を受ける時）',value:0.45},
+];
+
+function damageNumber(id, fallback) {
+  const input = document.getElementById(id);
+  let value = Number(input.value);
+  if (input.value.trim() === '' || !Number.isFinite(value)) value = fallback;
+  if (input.min !== '') value = Math.max(Number(input.min), value);
+  if (input.max !== '') value = Math.min(Number(input.max), value);
+  if (input.step === '1') value = Math.floor(value);
+  return value;
+}
+
+function damageSeals(prefix, seals) {
+  return seals.filter((_,i) => document.getElementById(prefix + i).checked);
+}
+function damageSave() {
+  const values = {};
+  document.querySelectorAll('#damagePanel input, #damagePanel select').forEach(input => {
+    values[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+  });
+  const ok = writeStored('shiren6-damage-conditions', {mode:damageMode, values});
+  document.getElementById('damageSaveStatus').textContent = ok ? '計算条件をこの端末に自動保存しました。' : '計算条件を保存できません。ブラウザの保存設定をご確認ください。';
+}
+
+function damageFormat(value) {
+  return Number.isInteger(value) ? value.toLocaleString() : value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+function damageLevelAttack(level) {
+  if (level <= 5) return 1 + (level - 1) * 1.5;
+  if (level <= 13) return 7.5 + (level - 5) * 1;
+  return 15.5 + (level - 13) * 0.5;
+}
+
+function damageShieldDefense(shieldStrength) {
+  return shieldStrength <= 20 ? shieldStrength : 20 + (shieldStrength - 20) * 0.6;
+}
+
+function damageRange(attack, defense, multiplier) {
+  const base = attack - defense + 1;
+  return {
+    min: Math.max(0, Math.floor(base * 0.875 * multiplier)),
+    max: Math.max(0, Math.floor(base * 1.125 * multiplier)),
+  };
+}
+
+function damageSetMode(mode) {
+  damageMode = mode;
+  document.getElementById('damageModeDeal').classList.toggle('selected', mode === 'deal');
+  document.getElementById('damageModeReceive').classList.toggle('selected', mode === 'receive');
+  document.getElementById('damageDealAttackFields').style.display = mode === 'deal' ? 'block' : 'none';
+  document.getElementById('damageReceiveAttackFields').style.display = mode === 'receive' ? 'block' : 'none';
+  document.getElementById('damageDealDefenseFields').style.display = mode === 'deal' ? 'block' : 'none';
+  document.getElementById('damageReceiveDefenseFields').style.display = mode === 'receive' ? 'block' : 'none';
+  document.getElementById('damageAttackTitle').textContent = mode === 'deal' ? '攻撃側：シレン' : '攻撃側：モンスター';
+  document.getElementById('damageDefenseTitle').textContent = mode === 'deal' ? '防御側：モンスター' : '防御側：シレン';
+  damageRender();
+}
+
+function damageInit() {
+  const weaponSelect = document.getElementById('damageWeapon');
+  const shieldSelect = document.getElementById('damageShield');
+  weaponSelect.innerHTML = '<option value="-1">なし（0）</option>' + ITEMS.weapon.map((item, index) =>
+    `<option value="${index}">${item.name}（${item.atk}）</option>`
+  ).join('');
+  shieldSelect.innerHTML = '<option value="-1">なし（0）</option>' + ITEMS.shield.map((item, index) =>
+    `<option value="${index}">${item.name}（${item.def}）</option>`
+  ).join('');
+  [['damageAttackSeals','damageAttackSeal',DAMAGE_ATTACK_SEALS],['damageDefenseSeals','damageDefenseSeal',DAMAGE_DEFENSE_SEALS]].forEach(([container,prefix,seals]) => {
+    document.getElementById(container).innerHTML = seals.map((seal,i) => `<label><input type="checkbox" id="${prefix}${i}" onchange="damageRender()">${seal.name}（${prefix === 'damageAttackSeal' ? '+' : '×'}${seal.value}）</label>`).join('');
+  });
+  const saved = readStored('shiren6-damage-conditions', {});
+  if (saved.values && typeof saved.values === 'object') {
+    document.querySelectorAll('#damagePanel input, #damagePanel select').forEach(input => {
+      const value = saved.values[input.id];
+      if (input.type === 'checkbox') { if (typeof value === 'boolean') input.checked = value; }
+      else if (input.tagName === 'SELECT') { if ([...input.options].some(option => option.value === value)) input.value = value; }
+      else if (typeof value === 'string' && value !== '' && Number.isFinite(Number(value))) input.value = value;
+    });
+  }
+  damageSetMode(saved.mode === 'receive' ? 'receive' : 'deal');
+}
+
+function damageRender() {
+  if (!document.getElementById('damagePanel')) return;
+  let attack, defense, attackText, defenseText, multiplier, explanation;
+  const incense = damageNumber('damageIncense', 1);
+  const directWeapon = document.getElementById('damageWeaponDirect').checked;
+  const directShield = document.getElementById('damageShieldDirect').checked;
+  document.getElementById('damageWeaponTotal').disabled = !directWeapon;
+  document.getElementById('damageShieldTotal').disabled = !directShield;
+  document.getElementById('damageWeapon').disabled = directWeapon;
+  document.getElementById('damageShield').disabled = directShield;
+  document.getElementById('damageWeaponEnhance').disabled = directWeapon || document.getElementById('damageWeapon').value === '-1';
+  document.getElementById('damageShieldEnhance').disabled = directShield || document.getElementById('damageShield').value === '-1';
+
+  if (damageMode === 'deal') {
+    const level = Math.max(1, damageNumber('damageLevel', 1));
+    const strength = damageNumber('damageStrength', 8);
+    const weaponIndex = parseInt(document.getElementById('damageWeapon').value, 10);
+    const weapon = Number.isInteger(weaponIndex) && weaponIndex >= 0 ? ITEMS.weapon[weaponIndex] : null;
+    const weaponStrength = Math.max(0, directWeapon ? damageNumber('damageWeaponTotal', 0) : weapon ? weapon.atk + damageNumber('damageWeaponEnhance', 0) : 0);
+    const strengthAttack = strength;
+    const weaponAttack = weaponStrength * (0.75 + strength / 32);
+    const levelAttack = damageLevelAttack(level);
+    attack = strengthAttack + weaponAttack + levelAttack;
+    defense = damageNumber('damageMonsterDefense', 0) / 2;
+    const seals = damageSeals('damageAttackSeal', DAMAGE_ATTACK_SEALS);
+    const special = damageNumber('damageSpecial', 0) + seals.reduce((sum,s) => sum + s.value, 0);
+    const dosukoi = document.getElementById('damageDosukoi').checked ? 1.5 : 1;
+    const attackBuff = Math.max(0, damageNumber('damageAttackBuff', 1));
+    const enemyDefenseBuff = Math.max(0.01, damageNumber('damageEnemyDefenseBuff', 1));
+    multiplier = (1 + special) * dosukoi * attackBuff / enemyDefenseBuff * incense;
+    attackText = `攻撃力 ${damageFormat(attack)}`;
+    defenseText = `守備力 ${damageFormat(defense)}`;
+    explanation = `ちから ${damageFormat(strength)} ＋ 武器 ${damageFormat(weaponAttack)} ＋ レベル ${damageFormat(levelAttack)} ／ モンスター守備力 ${damageFormat(damageNumber('damageMonsterDefense', 0))} ÷ 2`;
+    explanation += `<br>武器の強さ ${damageFormat(weaponStrength)} ／ 特攻倍率 1 ＋ ${damageFormat(special)} = ${damageFormat(1 + special)}倍<br>選択した印：${seals.map(s => s.name).join('、') || 'なし'}（追加値との二重入力に注意）`;
+  } else {
+    const monsterAttack = damageNumber('damageMonsterAttack', 100);
+    const monsterAttackBuff = Math.max(0, damageNumber('damageMonsterAttackBuff', 1));
+    const shieldIndex = parseInt(document.getElementById('damageShield').value, 10);
+    const shield = Number.isInteger(shieldIndex) && shieldIndex >= 0 ? ITEMS.shield[shieldIndex] : null;
+    const shieldStrength = Math.max(0, directShield ? damageNumber('damageShieldTotal', 0) : shield ? shield.def + damageNumber('damageShieldEnhance', 0) : 0);
+    attack = monsterAttack;
+    defense = damageShieldDefense(Math.max(0, shieldStrength));
+    const seals = damageSeals('damageDefenseSeal', DAMAGE_DEFENSE_SEALS);
+    const sealReduction = seals.reduce((product,s) => product * s.value, 1);
+    const reduction = damageNumber('damageDamageReduction', 1) * sealReduction;
+    const defenseBuff = Math.max(0.01, damageNumber('damageDefenseBuff', 1));
+    multiplier = monsterAttackBuff * reduction / defenseBuff * incense;
+    attackText = `攻撃力 ${damageFormat(attack)}（補正 ${damageFormat(monsterAttackBuff)}倍）`;
+    defenseText = `守備力 ${damageFormat(defense)}`;
+    explanation = `モンスター攻撃力 ${damageFormat(monsterAttack)} ／ 盾の強さ ${damageFormat(shieldStrength)} → 実効守備力 ${damageFormat(defense)}`;
+    explanation += `<br>軽減印：${seals.map(s => s.name).join('、') || 'なし'} ／ 印の乗算 ${damageFormat(sealReduction)} × 追加倍率 ${damageFormat(damageNumber('damageDamageReduction', 1))} = ${damageFormat(reduction)}倍`;
+  }
+
+  const result = damageRange(attack, defense, multiplier);
+  if (![attack,defense,multiplier,result.min,result.max].every(Number.isFinite)) {
+    document.getElementById('damageMin').textContent = '—';
+    document.getElementById('damageMax').textContent = '—';
+    document.getElementById('damageResultSub').textContent = '入力値が大きすぎるため計算できません。値を小さくしてください。';
+    document.getElementById('damageBreakdown').textContent = '';
+    damageSave();
+    return;
+  }
+  document.getElementById('damageMin').textContent = damageFormat(result.min);
+  document.getElementById('damageMax').textContent = damageFormat(result.max);
+  document.getElementById('damageResultTitle').textContent = damageMode === 'deal' ? '予測与ダメージ（1回）' : '予測受ダメージ（1回）';
+  document.getElementById('damageResultSub').textContent = `乱数87.5〜112.5%・小数点以下切り捨て ／ ${attackText}・${defenseText}`;
+  document.getElementById('damageBreakdown').innerHTML =
+    `<b>計算内訳</b><br>${explanation}<br>` +
+    `<b>適用倍率</b> ${damageFormat(multiplier)}倍（お香を含む）<br>` +
+    `<b>式</b> (${damageFormat(attack)} − ${damageFormat(defense)} ＋ 1) × 乱数 × ${damageFormat(multiplier)}<br>` +
+    `<span class="damage-warning">※記事・検証に基づく暫定値です。ゲーム内の実測値と異なる場合があります。</span>`;
+  damageSave();
+}
+
+damageInit();
+
 // ================= ボヨヨン増殖シミュレーター =================
 // 反射仕様（既存ツールの検証結果に準拠）:
 // ・斜め投げのみ増殖可能。壁の平面に当たると「く」の字反射
@@ -1400,6 +1814,7 @@ let boyoSel = null;   // {r, c}
 let boyoDir = null;   // 表示中の方向 index
 let boyoWalls = new Set();  // 壁マス "r,c" 形式（外周リング含む）
 let boyoMode = 'edit';      // 'edit' | 'play'
+const boyoHistory = [];
 
 function boyoInitWalls() {
   // 外周リング全マスを壁として初期化（内側は全床）
@@ -1416,10 +1831,10 @@ function boyoInitWalls() {
 boyoInitWalls();
 
 const BOYO_DIRS = [
-  { dr: -1, dc: -1, name: '左上' },
-  { dr: -1, dc:  1, name: '右上' },
-  { dr:  1, dc: -1, name: '左下' },
-  { dr:  1, dc:  1, name: '右下' },
+  { dr: -1, dc: -1, name: '左上', arrow: '↖' },
+  { dr: -1, dc:  1, name: '右上', arrow: '↗' },
+  { dr:  1, dc: -1, name: '左下', arrow: '↙' },
+  { dr:  1, dc:  1, name: '右下', arrow: '↘' },
 ];
 
 function boyoCellType(r, c) {
@@ -1493,9 +1908,23 @@ function boyoViable(r, c) {
 }
 
 function boyoResize(axis, delta) {
-  if (axis === 'w') boyoW = Math.min(12, Math.max(1, boyoW + delta));
-  else boyoH = Math.min(12, Math.max(1, boyoH + delta));
+  const size = Math.min(12, Math.max(1, (axis === 'w' ? boyoW : boyoH) + delta));
+  if (size === (axis === 'w' ? boyoW : boyoH)) return;
+  boyoRemember();
+  const old = boyoSnapshot();
+  if (axis === 'w') boyoW = size;
+  else boyoH = size;
   boyoInitWalls();
+  // 内側の壁と、同じ辺に残る出入口を保持する。
+  old.walls.forEach(key => {
+    const [r,c] = key.split(',').map(Number);
+    if (r >= 0 && r < Math.min(old.h,boyoH) && c >= 0 && c < Math.min(old.w,boyoW)) boyoWalls.add(key);
+  });
+  for (let r = -1; r <= boyoH; r++) for (let c = -1; c <= boyoW; c++) {
+    const oldRing = r >= -1 && r <= old.h && c >= -1 && c <= old.w && (r === -1 || r === old.h || c === -1 || c === old.w);
+    const newRing = r === -1 || r === boyoH || c === -1 || c === boyoW;
+    if (oldRing && newRing && !old.walls.includes(r + ',' + c)) boyoWalls.delete(r + ',' + c);
+  }
   boyoSel = null; boyoDir = null;
   boyoRender();
 }
@@ -1506,6 +1935,7 @@ function boyoSetMode(mode) {
 }
 
 function boyoToggleWall(r, c) {
+  boyoRemember();
   const key = r + ',' + c;
   if (boyoWalls.has(key)) {
     boyoWalls.delete(key);
@@ -1528,11 +1958,87 @@ function boyoCellClick(r, c) {
   }
 }
 
+function boyoSelectAndPick(r, c, direction) {
+  if (boyoCellType(r, c) !== 'floor') return;
+  const results = boyoViable(r, c);
+  if (!results[direction] || !boyoAllowed(results[direction])) return;
+  boyoMode = 'play';
+  boyoSel = { r, c };
+  boyoDir = direction;
+  boyoRender();
+}
+
+function boyoPositionLabel(r, c) {
+  if ((r === -1 || r === boyoH) && (c === -1 || c === boyoW)) return `${r === -1 ? '上' : '下'}側・${c === -1 ? '左' : '右'}端の外周角`;
+  if (r === -1 || r === boyoH || c === -1 || c === boyoW) {
+    if (r === -1) return `上側の出入口（左から${c + 1}列）`;
+    if (r === boyoH) return `下側の出入口（左から${c + 1}列）`;
+    return `${c === -1 ? '左' : '右'}側の出入口（上から${r + 1}行）`;
+  }
+  return `上から${r + 1}行・左から${c + 1}列`;
+}
+
+function boyoAllowed(result) {
+  return result.success && (!document.getElementById('boyoFeetOnly').checked || result.caught);
+}
+function boyoCandidates() {
+  const candidates = [];
+  for (let r = -1; r <= boyoH; r++) for (let c = -1; c <= boyoW; c++) {
+    if (boyoCellType(r,c) !== 'floor') continue;
+    boyoViable(r,c).forEach((res,i) => { if (boyoAllowed(res)) candidates.push({r,c,i,...res}); });
+  }
+  // 足元回収、部屋内への落下、外へ飛び出す順。反射回数の少ないものを優先。
+  const rank = x => x.caught ? 0 : x.escaped ? 2 : 1;
+  return candidates.sort((a,b) => rank(a)-rank(b) || a.bounces-b.bounces || a.r-b.r || a.c-b.c || a.i-b.i);
+}
+function boyoRecommend() {
+  const best = boyoCandidates()[0];
+  if (best) boyoSelectAndPick(best.r, best.c, best.i);
+}
+function boyoClearSelection() { boyoSel = null; boyoDir = null; boyoRender(); }
+function boyoFilterChanged() { boyoRender(); }
+function boyoSnapshot() {
+  return {w:boyoW,h:boyoH,walls:[...boyoWalls],sel:boyoSel,dir:boyoDir,mode:boyoMode,feetOnly:document.getElementById('boyoFeetOnly').checked};
+}
+function boyoRemember() {
+  boyoHistory.push(boyoSnapshot());
+  if (boyoHistory.length > 30) boyoHistory.shift();
+}
+function boyoRestore(room) {
+  if (!room || !Number.isInteger(room.w) || !Number.isInteger(room.h) || room.w < 1 || room.w > 12 || room.h < 1 || room.h > 12 || !Array.isArray(room.walls)) return false;
+  if (!room.walls.every(key => typeof key === 'string' && /^-?\d+,-?\d+$/.test(key) && key.split(',').map(Number).every((n,i) => n >= -1 && n <= (i === 0 ? room.h : room.w)))) return false;
+  boyoW = room.w; boyoH = room.h; boyoWalls = new Set(room.walls);
+  boyoMode = room.mode === 'play' ? 'play' : 'edit';
+  document.getElementById('boyoFeetOnly').checked = room.feetOnly === true;
+  const sel = room.sel;
+  boyoSel = sel && Number.isInteger(sel.r) && Number.isInteger(sel.c) && boyoCellType(sel.r,sel.c) === 'floor' ? {r:sel.r,c:sel.c} : null;
+  boyoDir = boyoSel && Number.isInteger(room.dir) && room.dir >= 0 && room.dir < 4 ? room.dir : null;
+  return true;
+}
+function boyoUndo() {
+  if (!boyoHistory.length) return;
+  boyoRestore(boyoHistory.pop());
+  boyoRender();
+}
+
+function boyoSolutionGuide(candidates) {
+  if (!candidates.length) return '<p>条件に合う位置・方向がありません。</p>';
+  return `<p class="boyo-solution-note">足元回収できる候補を先に表示します。位置を押すと方向と軌道を表示します。</p>` + candidates.map(p =>
+    `<div class="boyo-solution-row"><button class="boyo-position-btn" onclick="boyoSelectAndPick(${p.r},${p.c},${p.i})">${boyoPositionLabel(p.r,p.c)} → ${BOYO_DIRS[p.i].arrow} ${BOYO_DIRS[p.i].name} ／ ${p.caught ? '★ 足元回収' : p.escaped ? '⚠ 部屋の外' : '部屋内で回収'}</button></div>`
+  ).join('');
+}
+
 function boyoRender() {
   document.getElementById('boyoW').textContent = boyoW;
   document.getElementById('boyoH').textContent = boyoH;
   document.getElementById('boyoModeEditBtn').classList.toggle('selected', boyoMode === 'edit');
   document.getElementById('boyoModePlayBtn').classList.toggle('selected', boyoMode === 'play');
+  document.getElementById('boyoUndo').disabled = boyoHistory.length === 0;
+  const candidates = boyoCandidates();
+  const positions = new Set(candidates.map(p => p.r + ',' + p.c));
+  document.getElementById('boyoSolutionList').innerHTML = boyoSolutionGuide(candidates);
+  const saved = writeStored('shiren6-boyoyon-room', boyoSnapshot());
+  document.getElementById('boyoSaveStatus').textContent = saved ? '部屋・位置・方向をこの端末に自動保存します。「ひとつ戻す」はこの画面での直近30回の編集が対象です。' : '部屋を保存できません。ブラウザの保存設定をご確認ください。';
 
   // 表示中の軌道を計算
   let pathMap = {};       // "r,c" -> 通過順の番号リスト
@@ -1540,7 +2046,11 @@ function boyoRender() {
   let selResults = null;
   if (boyoSel) {
     selResults = boyoViable(boyoSel.r, boyoSel.c);
-    if (boyoDir !== null && selResults[boyoDir].success) {
+    if (boyoDir !== null && !boyoAllowed(selResults[boyoDir])) {
+      const best = selResults.findIndex(boyoAllowed);
+      boyoDir = best < 0 ? null : best;
+    }
+    if (boyoMode === 'play' && boyoDir !== null && boyoAllowed(selResults[boyoDir])) {
       const res = selResults[boyoDir];
       res.path.forEach((p, i) => {
         if (i === 0) return;
@@ -1552,21 +2062,25 @@ function boyoRender() {
   }
 
   // グリッド生成（外周リング含む全マス。外周も編集可能＝出入口を再現）
-  let html = '';
+  let html = '<thead><tr><th scope="col">行／列</th>';
+  for (let c = -1; c <= boyoW; c++) html += `<th scope="col">${c === -1 || c === boyoW ? '外' : c + 1}</th>`;
+  html += '</tr></thead><tbody>';
   for (let r = -1; r <= boyoH; r++) {
-    html += '<tr>';
+    html += `<tr><th scope="row">${r === -1 || r === boyoH ? '外' : r + 1}</th>`;
     for (let c = -1; c <= boyoW; c++) {
       const type = boyoCellType(r, c);
       if (type === 'wall') {
         const editable = boyoMode === 'edit';
         const cls = editable ? 'wall editable' : 'wall';
-        const onclick = editable ? ` onclick="boyoCellClick(${r},${c})"` : '';
-        html += `<td class="${cls}"${onclick}></td>`;
+        html += `<td class="${cls}"><button class="boyo-cell" aria-label="${boyoPositionLabel(r,c)}・壁${editable ? '、床に変更' : ''}" ${editable ? `onclick="boyoCellClick(${r},${c})"` : 'disabled'}></button></td>`;
         continue;
       }
       const results = boyoViable(r, c);
-      const anyOk = results.some(x => x.success);
-      const feetOk = results.some(x => x.success && x.caught);
+      const anyOk = results.some(boyoAllowed);
+      const feetOk = results.some(x => boyoAllowed(x) && x.caught);
+      const dirMarks = results.map((res, i) => boyoAllowed(res)
+        ? `<span class="boyo-cell-arrow">${BOYO_DIRS[i].arrow}</span>`
+        : '').join('');
       let cls = 'floor';
       if (boyoSel && boyoSel.r === r && boyoSel.c === c) cls += ' shiren';
       else if (feetOk) cls += ' viable viable-feet';
@@ -1575,55 +2089,63 @@ function boyoRender() {
       if (pathMap[key]) cls += ' on-path';
       if (landing && landing.r === r && landing.c === c) cls += ' landing';
       const label = boyoSel && boyoSel.r === r && boyoSel.c === c
-        ? '🚶'
+        ? `<span>🚶</span>`
         : (pathMap[key] ? `<span class="pathnum">${pathMap[key].join(',')}</span>` : '');
-      html += `<td class="${cls}" onclick="boyoCellClick(${r},${c})">${label}</td>`;
+      const guideLabel = !boyoSel && boyoMode === 'play' && anyOk
+        ? `投げ位置 ${boyoPositionLabel(r, c)}。${results.map((res, i) => res.success ? BOYO_DIRS[i].name : '').filter(Boolean).join('、')}に投げられます。`
+        : '';
+      const visibleLabel = !boyoSel && boyoMode === 'play' && anyOk
+        ? `<span class="boyo-cell-arrows">${dirMarks}</span>`
+        : label;
+      html += `<td class="${cls}" title="${guideLabel}"><button class="boyo-cell" aria-label="${boyoPositionLabel(r,c)}・床${boyoMode === 'edit' ? '、壁に変更' : '、立ち位置に選択'}" onclick="boyoCellClick(${r},${c})">${visibleLabel}</button></td>`;
     }
     html += '</tr>';
   }
-  document.getElementById('boyoGrid').innerHTML = html;
+  document.getElementById('boyoGrid').innerHTML = html + '</tbody>';
 
   // メッセージ欄
   const msg = document.getElementById('boyoMsg');
   if (boyoMode === 'edit') {
-    const total = countViable();
+    const total = positions.size;
     msg.innerHTML = total > 0
       ? `マスをタップして壁⇔床を切り替え。緑のマス（${total}ヶ所）は増殖可能な立ち位置です。形が決まったら「投げ位置を調べる」へ。`
       : `マスをタップして壁⇔床を切り替え。<span class="ng">現在の形では増殖できる立ち位置がありません。</span>形が決まったら「投げ位置を調べる」へ。`;
     return;
   }
   if (!boyoSel) {
-    const total = countViable();
+    const total = positions.size;
+    const best = candidates[0];
     msg.innerHTML = total > 0
-      ? `緑のマス（${total}ヶ所）から斜め投げで増殖できます。マスをタップすると方向と軌道を表示します。`
-      : `<span class="ng">この部屋の形では増殖できる立ち位置がありません。</span>「壁を編集」で形を変えてみてください。`;
+      ? `<div class="boyo-recommendation">おすすめ：${boyoPositionLabel(best.r,best.c)} → ${BOYO_DIRS[best.i].arrow} ${BOYO_DIRS[best.i].name}${best.caught ? '（足元回収）' : best.escaped ? '（⚠ 部屋の外に飛び出します）' : '（部屋内に落下）'}</div>緑のマス（${total}ヶ所）を選ぶと、大きな方向ボタンで軌道を確認できます。上の「おすすめ位置を選ぶ」でも選択できます。`
+      : `<span class="ng">条件に合う立ち位置がありません。</span>「足元回収のみ」を解除するか、「壁を編集」で形を変えてみてください。`;
     return;
   }
-  const okDirs = selResults.map((x, i) => ({ ...x, i })).filter(x => x.success);
+  const okDirs = selResults.map((x, i) => ({ ...x, i })).filter(boyoAllowed);
   let head;
   if (okDirs.length === 0) {
-    head = `<span class="ng">この位置からは増殖できません。</span>緑のマスに移動してください。`;
-  } else if (boyoDir !== null && selResults[boyoDir].success) {
+    head = `<span class="ng">この位置では選択条件に合う方向がありません。</span>緑のマスを選ぶか、足元回収のみを解除してください。`;
+  } else if (boyoDir !== null && boyoAllowed(selResults[boyoDir])) {
     const res = selResults[boyoDir];
     if (res.escaped) {
       head = `<span class="ok">増殖成功！</span> ただし<span class="ng">部屋の外に飛び出して落ちる</span>（回収困難・消失の恐れ） ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回`;
     } else {
       const landTxt = res.caught
         ? '<span class="ok">足元でキャッチ（歩かず回収）</span>'
-        : `落下地点は黄色枠のマス`;
+        : `落下地点：${boyoPositionLabel(res.landing.r,res.landing.c)}（黄色枠）`;
       head = `<span class="ok">増殖成功！</span> ${BOYO_DIRS[boyoDir].name}に投げる → 反射${res.bounces}回 → ${landTxt}`;
     }
   } else {
     head = `<span class="ok">増殖可能。</span>方向を選んでください。`;
   }
   const dirBtns = BOYO_DIRS.map((d, i) => {
-    const ok = selResults[i].success;
+    const ok = boyoAllowed(selResults[i]);
     const sel = boyoDir === i ? ' selected' : '';
     const caught = ok && selResults[i].caught ? ' ★' : '';
     const mark = ok ? (selResults[i].escaped ? '○⚠' : '○') : '×';
-    return `<span class="boyo-dir-btn ${ok ? 'ok' : 'ng'}${sel}" ${ok ? `onclick="boyoPick(${i})"` : ''}>${d.name} ${mark}${caught}</span>`;
+    return `<button class="boyo-dir-btn ${ok ? 'ok' : 'ng'}${sel}" aria-pressed="${boyoDir === i}" ${ok ? `onclick="boyoPick(${i})"` : 'disabled'}><span class="direction-arrow">${d.arrow}</span> ${d.name} ${mark}${caught}</button>`;
   }).join('');
-  msg.innerHTML = head + `<div class="boyo-dirs">${dirBtns}</div>`;
+  msg.innerHTML = `<div class="boyo-launch">${boyoPositionLabel(boyoSel.r,boyoSel.c)}${boyoDir === null ? '' : ` から ${BOYO_DIRS[boyoDir].arrow} ${BOYO_DIRS[boyoDir].name}に投げる`}</div>` + head + `<div class="boyo-dirs">${dirBtns}</div>`;
+  writeStored('shiren6-boyoyon-room', boyoSnapshot());
 }
 
 function countViable() {
@@ -1643,17 +2165,21 @@ function boyoSelect(r, c) {
     boyoSel = { r, c };
     const results = boyoViable(r, c);
     // 足元キャッチ優先で自動選択
-    let best = results.findIndex(x => x.success && x.caught);
-    if (best === -1) best = results.findIndex(x => x.success);
+    let best = results.findIndex(x => boyoAllowed(x) && x.caught);
+    if (best === -1) best = results.findIndex(x => boyoAllowed(x) && !x.escaped);
+    if (best === -1) best = results.findIndex(boyoAllowed);
     boyoDir = best === -1 ? null : best;
   }
   boyoRender();
 }
 
 function boyoPick(i) {
+  if (!boyoSel || !BOYO_DIRS[i] || !boyoAllowed(boyoViable(boyoSel.r,boyoSel.c)[i])) return;
   boyoDir = i;
   boyoRender();
 }
+
+boyoRestore(readStored('shiren6-boyoyon-room', null));
 
 let qrGenerated = false;
 function showQR() {
